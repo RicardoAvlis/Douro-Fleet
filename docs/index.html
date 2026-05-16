@@ -359,7 +359,11 @@ function connectAIS() {
     wsRetries = 0;
     const sub = {
       APIKey: API_KEY,
-      BoundingBoxes: [[[40.8, -8.9], [41.4, -8.0]]],
+      BoundingBoxes: [
+        [[40.9, -8.9], [41.5, -7.9]],
+        [[41.0, -7.9], [41.3, -7.0]],
+        [[41.0, -7.0], [41.2, -6.8]]
+      ],
       FilterMMSI: ships.map(s => s.mmsi)
     };
     ws.send(JSON.stringify(sub));
