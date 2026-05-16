@@ -374,11 +374,34 @@ function connectAIS() {
     document.getElementById("connectingOverlay").style.display = "none";
   };
 
-  ws.onmessage = (evt) => {
+  ws.onmessage = async (evt) => {
     try {
-      const msg = JSON.parse(evt.data);
+      let text;
+      if (evt.data instanceof Blob) {
+        try {
+          const ds = new DecompressionStream("gzip");
+          const stream = evt.data.stream().pipeThrough(ds);
+          const reader = stream.getReader();
+          const chunks = [];
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+          }
+          const totalLen = chunks.reduce((a, b) => a + b.length, 0);
+          const buf = new Uint8Array(totalLen);
+          let offset = 0;
+          for (const chunk of chunks) { buf.set(chunk, offset); offset += chunk.length; }
+          text = new TextDecoder().decode(buf);
+        } catch {
+          text = await evt.data.text();
+        }
+      } else {
+        text = evt.data;
+      }
+      const msg = JSON.parse(text);
       handleMessage(msg);
-    } catch(e) {}
+    } catch(e) { console.warn("parse error", e); }
   };
 
   ws.onerror = () => {
