@@ -4,556 +4,453 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Douro Fleet — Dashboard Operacional</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
-    --bg: #0a0e14;
-    --surface: #111720;
-    --surface2: #18212e;
-    --border: #1e2d3d;
-    --border2: #243447;
-    --blue: #4fc3f7;
-    --blue-dim: #1a4a6b;
-    --green: #4caf7d;
-    --green-dim: #0d3320;
-    --amber: #f0a500;
-    --amber-dim: #3d2a00;
-    --red: #e05252;
-    --text: #c9d6e3;
-    --text-muted: #5a7a96;
-    --text-dim: #2e4a62;
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-sans: 'IBM Plex Sans', sans-serif;
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #1f6feb;
+    --green: #3fb950;
+    --amber: #d29922;
+    --red: #f85149;
+    --card: #21262d;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); height: 100vh; overflow: hidden; }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.2; pointer-events: none; z-index: 0;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  .layout { position: relative; z-index: 1; display: grid; grid-template-rows: 53px 1fr; height: 100vh; }
+  /* ── Header ── */
+  header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 44px; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .logo { font-size: 14px; font-weight: 700; letter-spacing: .05em; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  #clock { color: var(--muted); font-size: 12px; }
+  #ws-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); color: var(--muted); transition: all .3s; }
+  #ws-badge.ok { border-color: var(--green); color: var(--green); }
+  #ws-badge.err { border-color: var(--red); color: var(--red); }
 
-  /* TOPBAR */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px; border-bottom: 1px solid var(--border);
-    background: rgba(10,14,20,0.95); backdrop-filter: blur(8px);
-  }
-  .topbar-left { display: flex; align-items: center; gap: 16px; }
-  .logo { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; }
-  .logo span { color: var(--text-muted); font-weight: 400; }
-  .divider-v { width: 1px; height: 18px; background: var(--border2); }
-  .live-pill { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--green); letter-spacing: 0.08em; text-transform: uppercase; }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.4s ease-in-out infinite; }
-  @keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 4px var(--green)} 50%{opacity:0.3;box-shadow:none} }
-  .clock { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; }
+  /* ── Layout ── */
+  .main { display: flex; flex: 1; overflow: hidden; }
+  .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); background: var(--panel); overflow-y: auto; }
+  .map-wrap { flex: 1; position: relative; }
+  #map { width: 100%; height: 100%; }
 
-  /* MAIN */
-  .main { display: grid; grid-template-columns: 280px 1fr; height: 100%; overflow: hidden; }
+  /* ── Sidebar sections ── */
+  .s-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 12px 16px 6px; border-bottom: 1px solid var(--border); }
 
-  /* SIDEBAR */
-  .sidebar { border-right: 1px solid var(--border); display: flex; flex-direction: column; background: rgba(17,23,32,0.7); overflow-y: auto; }
-  .sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
-  .sidebar-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+  /* ── Ship cards ── */
+  .ship-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .ship-card { padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); cursor: pointer; transition: border-color .2s, background .2s; }
+  .ship-card:hover { border-color: var(--accent); }
+  .ship-card.active { border-color: var(--accent); background: #1c2d3d; }
+  .ship-card.live { border-left: 3px solid var(--green); }
+  .ship-card .sc-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .ship-card .sc-mmsi { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .sc-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+  .sc-val { color: var(--text); font-weight: 600; }
+  .sc-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--border); margin-right: 5px; transition: background .3s; }
+  .sc-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .sc-dot.stale { background: var(--amber); }
 
-  .ship-card {
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 12px; border-radius: 6px; border: 1px solid transparent;
-    cursor: pointer; transition: all 0.15s; margin-bottom: 4px;
-    background: transparent; width: 100%; text-align: left;
-  }
-  .ship-card:hover { background: var(--surface2); border-color: var(--border2); }
-  .ship-card.active { background: var(--surface2); border-color: var(--blue-dim); }
-  .ship-card.active .ship-card-name { color: var(--blue); }
-  .ship-indicator { width: 3px; height: 34px; border-radius: 2px; flex-shrink: 0; }
-  .ship-card-info { flex: 1; min-width: 0; }
-  .ship-card-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; transition: color 0.15s; }
-  .ship-card-mmsi { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
-  .ship-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--text-dim); }
-  .ship-status-dot.online { background: var(--green); box-shadow: 0 0 5px #4caf7d66; }
+  /* ── Detail panel ── */
+  .detail-panel { padding: 12px 16px; border-top: 1px solid var(--border); flex: 1; }
+  .dp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .dp-name { font-size: 15px; font-weight: 700; }
+  .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .dp-cell { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 8px 10px; }
+  .dp-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  .dp-value { font-size: 14px; font-weight: 600; }
+  .dp-links { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .dp-link { font-size: 11px; color: var(--accent); text-decoration: none; padding: 3px 8px; border: 1px solid var(--accent); border-radius: 4px; opacity: .8; }
+  .dp-link:hover { opacity: 1; background: rgba(31,111,235,.15); }
+  .dp-empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
 
-  /* INFO PANEL */
-  .info-panel { padding: 16px; border-bottom: 1px solid var(--border); }
-  .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; border-bottom: 1px solid var(--border); }
-  .info-row:last-child { border-bottom: none; }
-  .info-key { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
-  .info-val { font-family: var(--font-mono); font-size: 11px; color: var(--text); font-weight: 500; text-align: right; max-width: 140px; word-break: break-word; }
-  .info-val.blue { color: var(--blue); }
-  .info-val.green { color: var(--green); }
-  .info-val.amber { color: var(--amber); }
-  .info-val.dim { color: var(--text-dim); }
+  /* ── Log ── */
+  .log-area { border-top: 1px solid var(--border); }
+  .log-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 8px 16px 4px; display: flex; justify-content: space-between; align-items: center; }
+  #log { height: 110px; overflow-y: auto; padding: 4px 16px 8px; display: flex; flex-direction: column-reverse; }
+  .log-line { font-size: 10px; color: var(--muted); line-height: 1.6; }
+  .log-line.ok { color: var(--green); }
+  .log-line.err { color: var(--red); }
+  .log-line.info { color: var(--accent); }
 
-  /* EXTERNAL LINKS */
-  .ext-links { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--border); }
-  .ext-link {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 7px 10px; border: 1px solid var(--border2); border-radius: 5px;
-    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
-    text-decoration: none; transition: all 0.15s; letter-spacing: 0.04em;
-  }
-  .ext-link:hover { border-color: var(--blue); color: var(--blue); background: rgba(79,195,247,0.04); }
+  /* ── Map overlays ── */
+  .map-hud { position: absolute; bottom: 12px; right: 12px; z-index: 500; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; pointer-events: none; }
+  .hud-pill { background: rgba(13,17,23,.85); border: 1px solid var(--border); border-radius: 12px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
+  #hud-ships { color: var(--text); }
+  #hud-time { color: var(--muted); }
 
-  /* FLEET SUMMARY */
-  .fleet-summary { padding: 16px; margin-top: auto; }
-  .summary-row { display: flex; justify-content: space-between; padding: 4px 0; }
-  .summary-key { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
-  .summary-val { font-family: var(--font-mono); font-size: 10px; color: var(--text); }
-  .tag { display: inline-block; padding: 2px 7px; border-radius: 3px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .tag-blue { background: var(--blue-dim); color: var(--blue); }
-  .tag-green { background: var(--green-dim); color: var(--green); }
-
-  /* CONTENT */
-  .content { display: flex; flex-direction: column; overflow: hidden; }
-  .content-header {
-    padding: 0 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(17,23,32,0.5); min-height: 52px; flex-shrink: 0;
-  }
-  .content-header-left { display: flex; align-items: center; gap: 12px; }
-  .ship-title { font-size: 16px; font-weight: 500; color: var(--text); }
-  .ship-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .header-btns { display: flex; gap: 6px; }
-  .hbtn {
-    padding: 5px 10px; border: 1px solid var(--border2); border-radius: 4px;
-    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
-    text-decoration: none; transition: all 0.15s; white-space: nowrap;
-  }
-  .hbtn:hover { border-color: var(--blue); color: var(--blue); }
-
-  /* MAP */
-  #map { flex: 1; width: 100%; }
-
-  /* Leaflet dark overrides */
-  .leaflet-container { background: #0d1520 !important; }
-  .leaflet-tile { filter: brightness(0.7) saturate(0.6) hue-rotate(195deg); }
-  .leaflet-control-zoom a { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border2) !important; }
-  .leaflet-control-attribution { background: rgba(10,14,20,0.8) !important; color: var(--text-dim) !important; font-size: 9px !important; }
-  .leaflet-control-attribution a { color: var(--text-dim) !important; }
-
-  /* Ship marker */
-  .ship-marker-wrap { position: relative; }
-  .ship-arrow {
-    width: 0; height: 0;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-bottom: 20px solid #4fc3f7;
-    filter: drop-shadow(0 0 6px rgba(79,195,247,0.8));
-    transform-origin: 50% 75%;
-    transition: border-bottom-color 0.3s;
-  }
-
-  /* Popup */
-  .leaflet-popup-content-wrapper {
-    background: var(--surface) !important;
-    border: 1px solid var(--border2) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
-    color: var(--text) !important;
-  }
-  .leaflet-popup-tip { background: var(--surface) !important; }
-  .leaflet-popup-content { margin: 12px 16px !important; font-family: var(--font-mono); font-size: 11px; }
-  .popup-name { font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 8px; }
-  .popup-row { display: flex; justify-content: space-between; gap: 16px; padding: 3px 0; border-bottom: 1px solid var(--border); }
-  .popup-row:last-child { border: none; }
-  .popup-k { color: var(--text-muted); }
-  .popup-v { color: var(--text); font-weight: 500; }
-
-  /* Status bar */
-  .status-bar {
-    border-top: 1px solid var(--border); display: flex; align-items: center;
-    padding: 0 20px; gap: 20px; height: 32px;
-    background: rgba(10,14,20,0.9); flex-shrink: 0;
-  }
-  .status-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
-  .status-item span { color: var(--text-muted); }
-  .status-dot { width: 5px; height: 5px; border-radius: 50%; }
-
-  /* Connecting overlay */
-  #connectingOverlay {
-    position: absolute; inset: 0; background: rgba(10,14,20,0.85);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; z-index: 1000; pointer-events: none;
-  }
-  .spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .connecting-text { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
-
-  .no-select { user-select: none; }
+  /* ── Leaflet popup ── */
+  .leaflet-popup-content-wrapper { background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 6px; box-shadow: none; }
+  .leaflet-popup-tip { background: var(--panel); }
+  .popup-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .popup-row { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; }
+  .popup-row span { color: var(--text); }
 </style>
 </head>
 <body>
-<div class="layout no-select">
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo">Douro Fleet <span>/ OPS</span></div>
-      <div class="divider-v"></div>
-      <div class="live-pill"><span class="live-dot"></span>AIS Live</div>
+<header>
+  <div class="logo">⚓ Douro <span>Fleet</span></div>
+  <div class="header-right">
+    <div id="clock">--:--:--</div>
+    <div id="ws-badge">● A ligar…</div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="s-title">Frota — 3 embarcações</div>
+    <div class="ship-list" id="ship-list"></div>
+
+    <div class="detail-panel" id="detail-panel">
+      <div class="dp-empty">← seleciona um navio</div>
     </div>
-    <div class="clock" id="clock">--:--:--</div>
-  </header>
 
-  <div class="main">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Frota — 3 embarcações</div>
-        <button class="ship-card" id="btn-0" onclick="selectShip(0)">
-          <div class="ship-indicator" style="background:#4fc3f7"></div>
-          <div class="ship-card-info">
-            <div class="ship-card-name">Douro Cruiser</div>
-            <div class="ship-card-mmsi">MMSI 255804680</div>
-          </div>
-          <div class="ship-status-dot" id="dot-0"></div>
-        </button>
-        <button class="ship-card" id="btn-1" onclick="selectShip(1)">
-          <div class="ship-indicator" style="background:#f0a500"></div>
-          <div class="ship-card-info">
-            <div class="ship-card-name">Douro Estrela</div>
-            <div class="ship-card-mmsi">MMSI 263442283</div>
-          </div>
-          <div class="ship-status-dot" id="dot-1"></div>
-        </button>
-        <button class="ship-card" id="btn-2" onclick="selectShip(2)">
-          <div class="ship-indicator" style="background:#e05252"></div>
-          <div class="ship-card-info">
-            <div class="ship-card-name">Avalon Alegria</div>
-            <div class="ship-card-mmsi">MMSI 263441852</div>
-          </div>
-          <div class="ship-status-dot" id="dot-2"></div>
-        </button>
+    <div class="log-area">
+      <div class="log-title">
+        Feed AIS
+        <span id="msg-count" style="color:var(--text)">0 msg</span>
       </div>
+      <div id="log"></div>
+    </div>
+  </div>
 
-      <!-- INFO PANEL -->
-      <div class="info-panel" id="infoPanel">
-        <div class="sidebar-label">Dados em tempo real</div>
-        <div class="info-row"><span class="info-key">Navio</span><span class="info-val dim" id="iName">—</span></div>
-        <div class="info-row"><span class="info-key">Velocidade</span><span class="info-val green" id="iSpeed">—</span></div>
-        <div class="info-row"><span class="info-key">Rumo</span><span class="info-val blue" id="iCourse">—</span></div>
-        <div class="info-row"><span class="info-key">Lat / Lon</span><span class="info-val" id="iPos">—</span></div>
-        <div class="info-row"><span class="info-key">Destino</span><span class="info-val amber" id="iDest">—</span></div>
-        <div class="info-row"><span class="info-key">ETA</span><span class="info-val amber" id="iEta">—</span></div>
-        <div class="info-row"><span class="info-key">Calado</span><span class="info-val" id="iDraught">—</span></div>
-        <div class="info-row"><span class="info-key">Última posição</span><span class="info-val dim" id="iUpdated">—</span></div>
-      </div>
-
-      <!-- LINKS -->
-      <div class="ext-links" id="extLinks" style="display:none">
-        <div class="sidebar-label" style="margin-bottom:6px;">Ver em</div>
-        <a class="ext-link" id="linkVF" href="#" target="_blank">VesselFinder <span>↗</span></a>
-        <a class="ext-link" id="linkMT" href="#" target="_blank">MarineTraffic <span>↗</span></a>
-        <a class="ext-link" href="https://livemap.apdl.pt" target="_blank">APDL Live Map <span>↗</span></a>
-      </div>
-
-      <!-- FLEET SUMMARY -->
-      <div class="fleet-summary">
-        <div class="sidebar-label" style="margin-bottom:8px;">Frota</div>
-        <div class="summary-row"><span class="summary-key">Zona</span><span class="summary-val">Rio Douro</span></div>
-        <div class="summary-row"><span class="summary-key">Porto base</span><span class="summary-val">Leixões</span></div>
-        <div class="summary-row"><span class="summary-key">Sistema</span><span class="summary-val"><span class="tag tag-blue">AIS</span></span></div>
-        <div class="summary-row"><span class="summary-key">Feed</span><span class="summary-val"><span class="tag tag-green" id="feedStatus">a ligar...</span></span></div>
-      </div>
-    </aside>
-
-    <!-- CONTENT -->
-    <section class="content">
-      <div class="content-header" id="contentHeader">
-        <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim);">← seleciona um navio para centrar o mapa</div>
-      </div>
-
-      <div style="position:relative; flex:1; display:flex; flex-direction:column;">
-        <div id="map"></div>
-        <div id="connectingOverlay">
-          <div class="spinner"></div>
-          <div class="connecting-text" id="connectingText">a ligar ao feed AIS...</div>
-        </div>
-      </div>
-
-      <div class="status-bar">
-        <div class="status-item"><span class="status-dot" id="wsDot" style="background:var(--text-dim)"></span><span id="wsStatus">A ligar...</span></div>
-        <div class="status-item">Navios recebidos: <span id="countReceived">0</span></div>
-        <div class="status-item">Última atualização: <span id="lastUpdate">—</span></div>
-      </div>
-    </section>
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="map-hud">
+      <div class="hud-pill">Navios ao vivo: <span id="hud-ships">0</span></div>
+      <div class="hud-pill" id="hud-time">Última posição: —</div>
+    </div>
   </div>
 </div>
 
 <script>
-const API_KEY = "d4c6145052acffa4c237f35c2d23269f1aa6f9d3";
-
-const ships = [
-  { name: "Douro Cruiser",  mmsi: "255804680", color: "#4fc3f7" },
-  { name: "Douro Estrela",  mmsi: "263442283", color: "#f0a500" },
-  { name: "Avalon Alegria", mmsi: "263441852", color: "#e05252" }
+// ── Config ────────────────────────────────────────────────────────────────
+const API_KEY = 'd4c6145052acffa4c237f35c2d23269f1aa6f9d3';
+const VESSELS = [
+  { mmsi: '255804680', name: 'Douro Cruiser',  flag: '🇵🇹' },
+  { mmsi: '263442283', name: 'Douro Estrela',  flag: '🇵🇹' },
+  { mmsi: '263441852', name: 'Avalon Alegria', flag: '🇵🇹' },
 ];
+const MMSI_SET = new Set(VESSELS.map(v => v.mmsi));
 
-const shipData = {};
-const markers = {};
-let activeIdx = null;
-let map, ws, wsRetries = 0;
+// ── State ─────────────────────────────────────────────────────────────────
+const state = {};   // mmsi → {name, flag, lat, lon, sog, cog, dest, eta, draught, ts}
+let selectedMMSI = null;
+let msgCount = 0;
+let ws = null;
+let wsRetry = 0;
 
-// Clock
-function updateClock() {
-  const now = new Date();
-  document.getElementById("clock").textContent =
-    now.toLocaleTimeString("pt-PT", {hour12:false}) + " UTC+1";
-}
-setInterval(updateClock, 1000);
-updateClock();
+// ── Clock ──────────────────────────────────────────────────────────────────
+const clockEl = document.getElementById('clock');
+setInterval(() => {
+  clockEl.textContent = new Date().toLocaleTimeString('pt-PT', {timeZone:'Europe/Lisbon'});
+}, 1000);
 
-// Init map — centered on Rio Douro
-map = L.map("map", {
-  center: [41.14, -8.50],
-  zoom: 11,
-  zoomControl: true,
-  attributionControl: true
-});
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: '© OpenStreetMap',
-  maxZoom: 19
+// ── Map ────────────────────────────────────────────────────────────────────
+const map = L.map('map', { zoomControl: true, attributionControl: true });
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap', maxZoom: 18
 }).addTo(map);
+map.setView([41.14, -8.67], 12);
 
-// Create markers for each ship
-ships.forEach((s, i) => {
-  const icon = L.divIcon({
-    className: "",
-    html: `<div style="
-      width:0; height:0;
-      border-left:7px solid transparent;
-      border-right:7px solid transparent;
-      border-bottom:20px solid ${s.color};
-      filter: drop-shadow(0 0 6px ${s.color}88);
-      transform-origin: 50% 75%;
-    " id="arrow-${i}"></div>`,
-    iconSize: [14, 20],
-    iconAnchor: [7, 15]
+const markers = {};
+
+function shipIcon(mmsi, active) {
+  const c = active ? '#3fb950' : '#8b949e';
+  return L.divIcon({
+    className: '',
+    html: `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="11,2 20,20 11,15 2,20" fill="${c}" stroke="#0d1117" stroke-width="1.5"/>
+    </svg>`,
+    iconSize: [22, 22], iconAnchor: [11, 11]
   });
+}
 
-  const marker = L.marker([41.14, -8.50], { icon, opacity: 0 })
-    .addTo(map)
-    .bindPopup("", { maxWidth: 240 });
+function buildPopup(d) {
+  return `<div class="popup-title">${d.flag} ${d.name}</div>
+    <div class="popup-row">SOG <span>${fmt(d.sog, 1)} kn</span></div>
+    <div class="popup-row">COG <span>${fmt(d.cog, 0)}°</span></div>
+    <div class="popup-row">Destino <span>${d.dest || '—'}</span></div>`;
+}
 
-  markers[s.mmsi] = marker;
-});
+function updateMarker(d) {
+  if (!d.lat || !d.lon) return;
+  const ll = [d.lat, d.lon];
+  const active = d.mmsi === selectedMMSI;
+  if (markers[d.mmsi]) {
+    markers[d.mmsi].setLatLng(ll).setIcon(shipIcon(d.mmsi, active)).setPopupContent(buildPopup(d));
+  } else {
+    const m = L.marker(ll, { icon: shipIcon(d.mmsi, active) })
+      .bindPopup(buildPopup(d))
+      .addTo(map);
+    m.on('click', () => selectShip(d.mmsi));
+    markers[d.mmsi] = m;
+  }
+}
 
-// Connect to AIS stream
-function connectAIS() {
-  document.getElementById("wsStatus").textContent = "A ligar...";
-  document.getElementById("wsDot").style.background = "var(--amber)";
-  document.getElementById("feedStatus").textContent = "a ligar...";
-  document.getElementById("feedStatus").className = "tag tag-blue";
+// ── Ship cards ─────────────────────────────────────────────────────────────
+function renderCards() {
+  const list = document.getElementById('ship-list');
+  list.innerHTML = '';
+  VESSELS.forEach(v => {
+    const d = state[v.mmsi] || {};
+    const live = d.ts && (Date.now() - d.ts) < 5 * 60 * 1000;
+    const card = document.createElement('div');
+    card.className = 'ship-card' + (live ? ' live' : '') + (selectedMMSI === v.mmsi ? ' active' : '');
+    card.innerHTML = `
+      <div class="sc-name"><span class="sc-dot ${live ? 'live' : (d.ts ? 'stale' : '')}"></span>${v.flag} ${v.name}</div>
+      <div class="sc-mmsi">MMSI ${v.mmsi}</div>
+      <div class="sc-row"><span>SOG</span><span class="sc-val">${d.sog != null ? fmt(d.sog,1)+' kn' : '—'}</span></div>
+      <div class="sc-row"><span>Posição</span><span class="sc-val">${d.lat != null ? fmt(d.lat,4)+'N '+fmt(d.lon,4)+'E' : '—'}</span></div>
+    `;
+    card.onclick = () => selectShip(v.mmsi);
+    list.appendChild(card);
+  });
+}
 
-  ws = new WebSocket(`wss://stream.aisstream.io/v0/stream`);
+function renderDetail(mmsi) {
+  const panel = document.getElementById('detail-panel');
+  if (!mmsi) { panel.innerHTML = '<div class="dp-empty">← seleciona um navio</div>'; return; }
+  const v = VESSELS.find(x => x.mmsi === mmsi) || {};
+  const d = state[mmsi] || {};
+  const vfLink = `https://www.vesselfinder.com/vessels/details/${mmsi}`;
+  const mtLink = `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${mmsi}`;
+  panel.innerHTML = `
+    <div class="dp-header"><span class="dp-name">${v.flag || ''} ${v.name || mmsi}</span></div>
+    <div class="dp-grid">
+      <div class="dp-cell"><div class="dp-label">SOG</div><div class="dp-value">${d.sog != null ? fmt(d.sog,1)+' kn' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog != null ? fmt(d.cog,0)+'°' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value">${d.lat != null ? fmt(d.lat,5) : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value">${d.lon != null ? fmt(d.lon,5) : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Destino</div><div class="dp-value" style="font-size:12px">${d.dest || '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">ETA</div><div class="dp-value" style="font-size:12px">${d.eta || '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught != null ? fmt(d.draught,1)+' m' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:11px">${d.ts ? relTime(d.ts) : '—'}</div></div>
+    </div>
+    <div class="dp-links">
+      <a class="dp-link" href="${vfLink}" target="_blank">VesselFinder ↗</a>
+      <a class="dp-link" href="${mtLink}" target="_blank">MarineTraffic ↗</a>
+      <a class="dp-link" href="https://livemap.apdl.pt" target="_blank">APDL ↗</a>
+    </div>`;
+}
+
+function selectShip(mmsi) {
+  selectedMMSI = mmsi;
+  const d = state[mmsi];
+  if (d && d.lat && d.lon) {
+    map.setView([d.lat, d.lon], 14, { animate: true });
+    markers[mmsi]?.openPopup();
+  }
+  Object.entries(markers).forEach(([m, mk]) => mk.setIcon(shipIcon(m, m === mmsi)));
+  renderCards();
+  renderDetail(mmsi);
+}
+
+// ── HUD ────────────────────────────────────────────────────────────────────
+function refreshHUD() {
+  const live = VESSELS.filter(v => state[v.mmsi]?.lat).length;
+  document.getElementById('hud-ships').textContent = live;
+  const latest = Object.values(state).filter(d => d.ts).sort((a,b) => b.ts-a.ts)[0];
+  document.getElementById('hud-time').textContent = latest ? 'Última: ' + relTime(latest.ts) : 'Última posição: —';
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmt(v, dec) {
+  if (v == null || isNaN(v)) return '—';
+  return Number(v).toFixed(dec);
+}
+function relTime(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 60) return s + 's atrás';
+  if (s < 3600) return Math.floor(s/60) + 'm atrás';
+  return Math.floor(s/3600) + 'h atrás';
+}
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + cls;
+  const t = new Date().toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  line.textContent = `[${t}] ${msg}`;
+  el.prepend(line);
+  while (el.children.length > 80) el.removeChild(el.lastChild);
+}
+
+// ── CORE FIX: Blob gzip decompression ─────────────────────────────────────
+// AISStream sends binary Blob messages compressed with gzip.
+// Strategy: try DecompressionStream('gzip'), fallback to 'deflate-raw', then plain text.
+async function decodeMessage(blob) {
+  // 1. Get raw bytes
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+
+  // 2. If first 2 bytes are gzip magic (0x1f 0x8b) → decompress
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+    // Try gzip first
+    try {
+      return await decompress(buf, 'gzip');
+    } catch (e1) {
+      // Fallback deflate-raw (some browsers map it differently)
+      try {
+        return await decompress(buf, 'deflate-raw');
+      } catch (e2) {
+        throw new Error('gzip decompression failed: ' + e2.message);
+      }
+    }
+  }
+
+  // 3. Not gzip — might be plain JSON text (AISStream sometimes sends uncompressed)
+  try {
+    return new TextDecoder().decode(bytes);
+  } catch(e) {
+    throw new Error('Cannot decode message: ' + e.message);
+  }
+}
+
+async function decompress(buffer, format) {
+  const ds = new DecompressionStream(format);
+  const writer = ds.writable.getWriter();
+  const reader = ds.readable.getReader();
+
+  writer.write(new Uint8Array(buffer));
+  writer.close();
+
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+
+  const total = chunks.reduce((a, c) => a + c.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) { out.set(c, offset); offset += c.length; }
+  return new TextDecoder().decode(out);
+}
+
+// ── AIS message handler ────────────────────────────────────────────────────
+function handleAIS(json) {
+  let msg;
+  try { msg = JSON.parse(json); } catch(e) { return; }
+
+  const mmsi = String(
+    msg?.MetaData?.MMSI ||
+    msg?.Message?.PositionReport?.UserID ||
+    msg?.Message?.StandardClassBPositionReport?.UserID ||
+    msg?.Message?.ShipStaticData?.UserID ||
+    ''
+  );
+  if (!MMSI_SET.has(mmsi)) return;
+
+  const v = VESSELS.find(x => x.mmsi === mmsi);
+  if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name, flag: v?.flag };
+  const d = state[mmsi];
+  d.ts = Date.now();
+
+  // Position reports (type 1,2,3,18)
+  const pos = msg?.Message?.PositionReport || msg?.Message?.StandardClassBPositionReport;
+  if (pos) {
+    const lat = pos.Latitude;
+    const lon = pos.Longitude;
+    // AISStream sends 91/181 as "not available"
+    if (lat != null && Math.abs(lat) <= 90) d.lat = lat;
+    if (lon != null && Math.abs(lon) <= 180) d.lon = lon;
+    if (pos.SpeedOverGround != null) d.sog = pos.SpeedOverGround;
+    if (pos.CourseOverGround != null) d.cog = pos.CourseOverGround;
+    updateMarker(d);
+    log(`${v?.name || mmsi} — ${fmt(d.lat,4)}N ${fmt(d.lon,4)}E  ${fmt(d.sog,1)}kn`, 'ok');
+    msgCount++;
+    document.getElementById('msg-count').textContent = msgCount + ' msg';
+    refreshHUD();
+    if (selectedMMSI === mmsi) renderDetail(mmsi);
+    renderCards();
+  }
+
+  // Static/voyage data (type 5,24)
+  const stat = msg?.Message?.ShipStaticData;
+  if (stat) {
+    if (stat.Destination) d.dest = stat.Destination.trim();
+    if (stat.Eta) d.eta = formatETA(stat.Eta);
+    if (stat.MaximumStaticDraught) d.draught = stat.MaximumStaticDraught;
+    log(`${v?.name || mmsi} — destino: ${d.dest || '—'}`, 'info');
+    renderCards();
+    if (selectedMMSI === mmsi) renderDetail(mmsi);
+  }
+}
+
+function formatETA(eta) {
+  if (!eta) return '—';
+  // AISStream ETA: {Month,Day,Hour,Minute}
+  if (typeof eta === 'object') {
+    const m = String(eta.Month||0).padStart(2,'0');
+    const d = String(eta.Day||0).padStart(2,'0');
+    const h = String(eta.Hour||0).padStart(2,'0');
+    const mn = String(eta.Minute||0).padStart(2,'0');
+    return `${d}/${m} ${h}:${mn}`;
+  }
+  return String(eta);
+}
+
+// ── WebSocket ──────────────────────────────────────────────────────────────
+const WS_BADGE = document.getElementById('ws-badge');
+
+function connect() {
+  log('A ligar ao AISStream…', 'info');
+  WS_BADGE.className = '';
+  WS_BADGE.textContent = '● A ligar…';
+
+  ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
 
   ws.onopen = () => {
-    wsRetries = 0;
-    const sub = {
+    wsRetry = 0;
+    WS_BADGE.className = 'ok';
+    WS_BADGE.textContent = '● Ligado';
+    log('WebSocket 101 — a subscrever MMSIs', 'ok');
+
+    ws.send(JSON.stringify({
       APIKey: API_KEY,
-      BoundingBoxes: [
-        [[40.9, -8.9], [41.5, -7.9]],
-        [[41.0, -7.9], [41.3, -7.0]],
-        [[41.0, -7.0], [41.2, -6.8]]
-      ],
-      FilterMMSI: ships.map(s => s.mmsi)
-    };
-    ws.send(JSON.stringify(sub));
-    document.getElementById("wsStatus").textContent = "Ligado";
-    document.getElementById("wsDot").style.background = "var(--green)";
-    document.getElementById("feedStatus").textContent = "em direto";
-    document.getElementById("feedStatus").className = "tag tag-green";
-    document.getElementById("connectingOverlay").style.display = "none";
+      BoundingBoxes: [[[-90, -180], [90, 180]]],
+      FilterMessageTypes: ['PositionReport', 'StandardClassBPositionReport', 'ShipStaticData'],
+      MMSIs: VESSELS.map(v => parseInt(v.mmsi)),
+    }));
   };
 
   ws.onmessage = async (evt) => {
-    try {
-      let text;
-      if (evt.data instanceof Blob) {
-        try {
-          const ds = new DecompressionStream("gzip");
-          const stream = evt.data.stream().pipeThrough(ds);
-          const reader = stream.getReader();
-          const chunks = [];
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-          }
-          const totalLen = chunks.reduce((a, b) => a + b.length, 0);
-          const buf = new Uint8Array(totalLen);
-          let offset = 0;
-          for (const chunk of chunks) { buf.set(chunk, offset); offset += chunk.length; }
-          text = new TextDecoder().decode(buf);
-        } catch {
-          text = await evt.data.text();
-        }
-      } else {
-        text = evt.data;
+    // AISStream always sends Blob; handle both compressed and plain
+    if (evt.data instanceof Blob) {
+      try {
+        const text = await decodeMessage(evt.data);
+        handleAIS(text);
+      } catch(e) {
+        log('Erro Blob: ' + e.message, 'err');
       }
-      const msg = JSON.parse(text);
-      handleMessage(msg);
-    } catch(e) { console.warn("parse error", e); }
-  };
-
-  ws.onerror = () => {
-    document.getElementById("wsStatus").textContent = "Erro de ligação";
-    document.getElementById("wsDot").style.background = "var(--red)";
-  };
-
-  ws.onclose = () => {
-    document.getElementById("wsStatus").textContent = "Desligado";
-    document.getElementById("wsDot").style.background = "var(--text-dim)";
-    document.getElementById("feedStatus").textContent = "desligado";
-    document.getElementById("feedStatus").className = "tag tag-blue";
-    wsRetries++;
-    const delay = Math.min(5000 * wsRetries, 30000);
-    setTimeout(connectAIS, delay);
-  };
-}
-
-let receivedCount = 0;
-
-function handleMessage(msg) {
-  const mmsi = String(msg?.MetaData?.MMSI || "");
-  if (!mmsi) return;
-
-  const shipIdx = ships.findIndex(s => s.mmsi === mmsi);
-  if (shipIdx === -1) return;
-
-  const meta = msg.MetaData || {};
-  const pos = msg.Message?.PositionReport || msg.Message?.StandardClassBPositionReport || {};
-  const voyage = msg.Message?.Voyage || {};
-
-  const lat = meta.latitude || pos.Latitude;
-  const lon = meta.longitude || pos.Longitude;
-  const sog = pos.Sog !== undefined ? pos.Sog : null;
-  const cog = pos.Cog !== undefined ? pos.Cog : null;
-  const heading = pos.TrueHeading || cog;
-  const dest = voyage.Destination || meta.ShipName || "";
-  const eta = voyage.Eta || "";
-  const draught = voyage.Draught || null;
-
-  if (!lat || !lon) return;
-
-  // Store data
-  shipData[mmsi] = { lat, lon, sog, cog, heading, dest, eta, draught, name: ships[shipIdx].name, mmsi, updated: new Date() };
-
-  // Update marker
-  const marker = markers[mmsi];
-  if (marker) {
-    marker.setLatLng([lat, lon]);
-    marker.setOpacity(1);
-
-    // Rotate arrow
-    const arrow = document.getElementById(`arrow-${shipIdx}`);
-    if (arrow && heading !== null && heading < 360) {
-      arrow.style.transform = `rotate(${heading}deg)`;
+    } else if (typeof evt.data === 'string') {
+      handleAIS(evt.data);
     }
+  };
 
-    // Update popup
-    marker.setPopupContent(`
-      <div class="popup-name">${ships[shipIdx].name}</div>
-      <div class="popup-row"><span class="popup-k">Velocidade</span><span class="popup-v">${sog !== null ? sog.toFixed(1) + " kn" : "—"}</span></div>
-      <div class="popup-row"><span class="popup-k">Rumo</span><span class="popup-v">${cog !== null ? Math.round(cog) + "°" : "—"}</span></div>
-      <div class="popup-row"><span class="popup-k">Posição</span><span class="popup-v">${lat.toFixed(4)}, ${lon.toFixed(4)}</span></div>
-      ${dest ? `<div class="popup-row"><span class="popup-k">Destino</span><span class="popup-v">${dest}</span></div>` : ""}
-    `);
-  }
+  ws.onerror = (e) => {
+    log('WebSocket erro', 'err');
+  };
 
-  // Update status dot in sidebar
-  const dot = document.getElementById(`dot-${shipIdx}`);
-  if (dot) dot.className = "ship-status-dot online";
-
-  // Update count & time
-  receivedCount++;
-  document.getElementById("countReceived").textContent = receivedCount;
-  document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString("pt-PT", {hour12:false});
-
-  // If this ship is active, update info panel
-  if (activeIdx !== null && ships[activeIdx].mmsi === mmsi) {
-    updateInfoPanel(mmsi);
-  }
+  ws.onclose = (e) => {
+    WS_BADGE.className = 'err';
+    WS_BADGE.textContent = '● Desligado';
+    log(`WS fechado (${e.code}) — retry em ${Math.min(30, 2**wsRetry)}s`, 'err');
+    const delay = Math.min(30000, 1000 * 2 ** wsRetry++);
+    setTimeout(connect, delay);
+  };
 }
 
-function updateInfoPanel(mmsi) {
-  const d = shipData[mmsi];
-  if (!d) return;
-
-  document.getElementById("iName").textContent = d.name;
-  document.getElementById("iName").className = "info-val blue";
-  document.getElementById("iSpeed").textContent = d.sog !== null ? d.sog.toFixed(1) + " nós" : "—";
-  document.getElementById("iCourse").textContent = d.cog !== null ? Math.round(d.cog) + "°" : "—";
-  document.getElementById("iPos").textContent = d.lat.toFixed(5) + ", " + d.lon.toFixed(5);
-  document.getElementById("iDest").textContent = d.dest || "—";
-  document.getElementById("iEta").textContent = d.eta || "—";
-  document.getElementById("iDraught").textContent = d.draught ? d.draught + " m" : "—";
-  document.getElementById("iUpdated").textContent = d.updated.toLocaleTimeString("pt-PT", {hour12:false});
-}
-
-function selectShip(i) {
-  activeIdx = i;
-  const s = ships[i];
-
-  // Update sidebar active
-  document.querySelectorAll(".ship-card").forEach((btn, idx) => {
-    btn.classList.toggle("active", idx === i);
-  });
-
-  // Update header
-  document.getElementById("contentHeader").innerHTML = `
-    <div class="content-header-left">
-      <div style="width:4px;height:28px;border-radius:2px;background:${s.color};flex-shrink:0;"></div>
-      <div>
-        <div class="ship-title">${s.name}</div>
-        <div class="ship-sub">MMSI ${s.mmsi} · Rio Douro</div>
-      </div>
-    </div>
-    <div class="header-btns">
-      <a class="hbtn" href="https://www.vesselfinder.com/vessels/details/${s.mmsi}" target="_blank">VesselFinder ↗</a>
-      <a class="hbtn" href="https://www.marinetraffic.com/en/ais/details/ships/mmsi:${s.mmsi}" target="_blank">MarineTraffic ↗</a>
-      <a class="hbtn" href="https://livemap.apdl.pt" target="_blank">APDL ↗</a>
-    </div>
-  `;
-
-  // Update external links
-  document.getElementById("extLinks").style.display = "block";
-  document.getElementById("linkVF").href = `https://www.vesselfinder.com/vessels/details/${s.mmsi}`;
-  document.getElementById("linkMT").href = `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${s.mmsi}`;
-
-  // Update info panel
-  if (shipData[s.mmsi]) {
-    updateInfoPanel(s.mmsi);
-    // Center map on ship
-    const d = shipData[s.mmsi];
-    map.flyTo([d.lat, d.lon], 14, { duration: 1.2 });
-    markers[s.mmsi].openPopup();
-  } else {
-    // Reset info
-    document.getElementById("iName").textContent = s.name;
-    document.getElementById("iName").className = "info-val dim";
-    document.getElementById("iSpeed").textContent = "a aguardar dados...";
-    document.getElementById("iCourse").textContent = "—";
-    document.getElementById("iPos").textContent = "—";
-    document.getElementById("iDest").textContent = "—";
-    document.getElementById("iEta").textContent = "—";
-    document.getElementById("iDraught").textContent = "—";
-    document.getElementById("iUpdated").textContent = "—";
-    // Center on Douro
-    map.flyTo([41.14, -8.50], 11, { duration: 1 });
-  }
-}
-
-// Start
-connectAIS();
+// ── Init ───────────────────────────────────────────────────────────────────
+renderCards();
+setInterval(() => { renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD(); }, 5000);
+connect();
 </script>
 </body>
 </html>
