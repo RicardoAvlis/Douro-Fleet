@@ -403,9 +403,55 @@ function connect() {
   };
 }
 
+// ── APDL API (fonte principal — cobertura local Rio Douro) ─────────────────
+const APDL_URL = 'https://livemap.apdl.pt/api/ships/realtime/all';
+
+async function fetchAPDL() {
+  try {
+    const r = await fetch(APDL_URL);
+    if (!r.ok) { log('APDL: HTTP ' + r.status, 'err'); return; }
+    const json = await r.json();
+    const ships = json?.data || (Array.isArray(json) ? json : []);
+    let updated = 0;
+    ships.forEach(s => {
+      const mmsi = String(s.mmsi);
+      if (!MMSI_SET.has(mmsi)) return;
+      const v = VESSELS.find(x => x.mmsi === mmsi);
+      if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name || s.name, flag: v?.flag || '\u{1F1F5}\u{1F1F9}' };
+      const d = state[mmsi];
+      try {
+        const geo = typeof s.geojson === 'string' ? JSON.parse(s.geojson) : s.geojson;
+        if (geo?.coordinates) { d.lon = geo.coordinates[0]; d.lat = geo.coordinates[1]; }
+      } catch(e) {}
+      if (s.sog != null) d.sog = parseFloat(s.sog);
+      if (s.cog != null) d.cog = parseFloat(s.cog);
+      d.ts = new Date(s.last_updated).getTime() || Date.now();
+      d.source = 'APDL';
+      updateMarker(d);
+      updated++;
+    });
+    if (updated > 0) {
+      log('APDL — ' + updated + ' navio(s) atualizado(s)', 'ok');
+      msgCount += updated;
+      document.getElementById('msg-count').textContent = msgCount + ' msg';
+      renderCards();
+      if (selectedMMSI) renderDetail(selectedMMSI);
+      refreshHUD();
+    } else {
+      log('APDL — sem dados dos nossos navios', 'info');
+    }
+  } catch(e) {
+    log('APDL erro: ' + e.message, 'err');
+  }
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
 renderCards();
 setInterval(() => { renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD(); }, 5000);
+// APDL: polling a cada 30s (fonte principal, cobertura local)
+fetchAPDL();
+setInterval(fetchAPDL, 30000);
+// AISStream: fallback global
 connect();
 </script>
 </body>
