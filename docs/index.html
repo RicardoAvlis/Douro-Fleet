@@ -280,57 +280,13 @@ function log(msg, cls='') {
   while (el.children.length > 80) el.removeChild(el.lastChild);
 }
 
-// ── CORE FIX: Blob gzip decompression ─────────────────────────────────────
-// AISStream sends binary Blob messages compressed with gzip.
-// Strategy: try DecompressionStream('gzip'), fallback to 'deflate-raw', then plain text.
+// ── Decode AISStream message ───────────────────────────────────────────────
+// AISStream envia Blob com JSON puro (magic bytes 7b 22 = '{"')
+// Não há compressão gzip — basta blob.text()
 async function decodeMessage(blob) {
-  // 1. Get raw bytes
-  const buf = await blob.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-
-  // 2. If first 2 bytes are gzip magic (0x1f 0x8b) → decompress
-  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-    // Try gzip first
-    try {
-      return await decompress(buf, 'gzip');
-    } catch (e1) {
-      // Fallback deflate-raw (some browsers map it differently)
-      try {
-        return await decompress(buf, 'deflate-raw');
-      } catch (e2) {
-        throw new Error('gzip decompression failed: ' + e2.message);
-      }
-    }
-  }
-
-  // 3. Not gzip — might be plain JSON text (AISStream sometimes sends uncompressed)
-  try {
-    return new TextDecoder().decode(bytes);
-  } catch(e) {
-    throw new Error('Cannot decode message: ' + e.message);
-  }
-}
-
-async function decompress(buffer, format) {
-  const ds = new DecompressionStream(format);
-  const writer = ds.writable.getWriter();
-  const reader = ds.readable.getReader();
-
-  writer.write(new Uint8Array(buffer));
-  writer.close();
-
-  const chunks = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-  }
-
-  const total = chunks.reduce((a, c) => a + c.length, 0);
-  const out = new Uint8Array(total);
-  let offset = 0;
-  for (const c of chunks) { out.set(c, offset); offset += c.length; }
-  return new TextDecoder().decode(out);
+  if (blob instanceof Blob) return await blob.text();
+  if (typeof blob === 'string') return blob;
+  throw new Error('Tipo de mensagem desconhecido: ' + typeof blob);
 }
 
 // ── AIS message handler ────────────────────────────────────────────────────
