@@ -196,11 +196,14 @@ function updateMarker(d) {
   if (!d.lat || !d.lon) return;
   const ll = [d.lat, d.lon];
   const active = d.mmsi === selectedMMSI;
+  const icon = shipIcon(d.mmsi, active);
   if (markers[d.mmsi]) {
-    markers[d.mmsi].setLatLng(ll).setIcon(shipIcon(d.mmsi, active)).setPopupContent(buildPopup(d));
+    markers[d.mmsi].setLatLng(ll);
+    markers[d.mmsi].setIcon(icon);
+    markers[d.mmsi].setPopupContent(buildPopup(d));
   } else {
-    const m = L.marker(ll, { icon: shipIcon(d.mmsi, active) })
-      .bindPopup(buildPopup(d))
+    const m = L.marker(ll, { icon })
+      .bindPopup(buildPopup(d), { maxWidth: 220 })
       .addTo(map);
     m.on('click', () => selectShip(d.mmsi));
     markers[d.mmsi] = m;
