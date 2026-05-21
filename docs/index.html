@@ -160,23 +160,55 @@ map.setView([41.14, -8.67], 12);
 
 const markers = {};
 
+function metersToPixels(meters) {
+  // Leaflet: a cada zoom, 1 grau lat ≈ 111320m
+  // pixels por metro = (tileSize * 2^zoom) / (circumference * cos(lat))
+  const zoom = map.getZoom();
+  const lat = map.getCenter().lat;
+  const metersPerPx = (40075016.686 * Math.cos(lat * Math.PI / 180)) / Math.pow(2, zoom + 8);
+  return Math.max(4, meters / metersPerPx);
+}
+
 function shipIcon(mmsi, active) {
   const d = state[mmsi] || {};
   const cog = d.cog != null ? d.cog : 0;
   const c = active ? '#3fb950' : '#8b949e';
   const stroke = active ? '#0d6e2a' : '#30363d';
-  // Silhueta de navio vista de cima, orientada pelo COG
-  const svg = `<svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg"
-    style="transform:rotate(${cog}deg);transform-origin:center;">
-    <path d="M14,2 L18,8 L18,20 Q18,23 14,25 Q10,23 10,20 L10,8 Z"
-      fill="${c}" stroke="${stroke}" stroke-width="1.2"/>
-    <line x1="14" y1="8" x2="14" y2="18" stroke="${stroke}" stroke-width="1"/>
-    <line x1="10" y1="13" x2="18" y2="13" stroke="${stroke}" stroke-width="1"/>
+
+  // Dimensões reais em metros
+  const lenM = (d.dim_a || 20) + (d.dim_b || 20); // comprimento total
+  const wM   = (d.dim_c || 5)  + (d.dim_d || 5);  // largura total
+
+  // Converter para píxeis com base no zoom atual, com limites min/max
+  const lenPx = Math.min(120, Math.max(16, metersToPixels(lenM)));
+  const wPx   = Math.min(40,  Math.max(6,  metersToPixels(wM)));
+
+  const cx = wPx / 2;
+  const cy = lenPx / 2;
+
+  // Silhueta de navio: proa apontada para cima (Norte = 0°)
+  const bow = lenPx * 0.15; // comprimento da proa arredondada
+  const svg = `<svg width="${wPx}" height="${lenPx}"
+    viewBox="0 0 ${wPx} ${lenPx}"
+    xmlns="http://www.w3.org/2000/svg"
+    style="transform:rotate(${cog}deg);transform-origin:${cx}px ${cy}px;overflow:visible">
+    <path d="M${cx},0
+             L${wPx},${bow}
+             L${wPx},${lenPx}
+             L0,${lenPx}
+             L0,${bow} Z"
+      fill="${c}" stroke="${stroke}" stroke-width="1.2" opacity="0.92"/>
+    <line x1="${cx}" y1="${bow}" x2="${cx}" y2="${lenPx * 0.7}"
+      stroke="${stroke}" stroke-width="0.8" opacity="0.6"/>
+    <line x1="${wPx * 0.2}" y1="${lenPx * 0.5}" x2="${wPx * 0.8}" y2="${lenPx * 0.5}"
+      stroke="${stroke}" stroke-width="0.8" opacity="0.6"/>
   </svg>`;
+
   return L.divIcon({
     className: '',
     html: svg,
-    iconSize: [28, 28], iconAnchor: [14, 14]
+    iconSize: [wPx, lenPx],
+    iconAnchor: [cx, cy]
   });
 }
 
@@ -457,6 +489,11 @@ async function fetchAPDL() {
       if (s.jul_eta) d.jul_eta = fmtEtaAPDL(s.jul_eta);
       if (s.jul_status) d.jul_status = s.jul_status;
       if (s.draught) d.draught = parseFloat(s.draught);
+      // Dimensões reais do navio (metros)
+      if (s.dim_a != null) d.dim_a = s.dim_a;
+      if (s.dim_b != null) d.dim_b = s.dim_b;
+      if (s.dim_c != null) d.dim_c = s.dim_c;
+      if (s.dim_d != null) d.dim_d = s.dim_d;
       d.ts = new Date(s.last_updated).getTime() || Date.now();
       d.source = 'APDL';
       updateMarker(d);
@@ -476,6 +513,14 @@ async function fetchAPDL() {
     log('APDL erro: ' + e.message, 'err');
   }
 }
+
+// ── Atualizar ícones ao mudar zoom ────────────────────────────────────────
+map.on('zoomend', () => {
+  Object.keys(markers).forEach(mmsi => {
+    const active = mmsi === selectedMMSI;
+    markers[mmsi].setIcon(shipIcon(mmsi, active));
+  });
+});
 
 // ── Init ───────────────────────────────────────────────────────────────────
 renderCards();
