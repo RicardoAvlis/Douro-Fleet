@@ -153,8 +153,18 @@ setInterval(() => {
 
 // ── Map ────────────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl: true, attributionControl: true });
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap', maxZoom: 18
+// Tiles leves estilo minimalista (CartoDB Positron)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// Camada náutica OpenSeaMap (boias, marcações, portos)
+L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+  attribution: '© OpenSeaMap',
+  maxZoom: 18,
+  opacity: 0.8
 }).addTo(map);
 map.setView([41.14, -8.67], 12);
 
@@ -224,6 +234,8 @@ function buildPopup(d) {
     ${status}`;
 }
 
+let followMode = false; // segue o navio selecionado
+
 function updateMarker(d) {
   if (!d.lat || !d.lon) return;
   const ll = [d.lat, d.lon];
@@ -239,6 +251,10 @@ function updateMarker(d) {
       .addTo(map);
     m.on('click', () => selectShip(d.mmsi));
     markers[d.mmsi] = m;
+  }
+  // Se este é o navio selecionado e follow está ativo, centra o mapa
+  if (d.mmsi === selectedMMSI && followMode) {
+    map.panTo(ll, { animate: true, duration: 0.5 });
   }
 }
 
@@ -290,6 +306,7 @@ function renderDetail(mmsi) {
 
 function selectShip(mmsi) {
   selectedMMSI = mmsi;
+  followMode = true; // ativar follow ao selecionar
   const d = state[mmsi];
   if (d && d.lat && d.lon) {
     map.setView([d.lat, d.lon], 14, { animate: true });
@@ -299,6 +316,9 @@ function selectShip(mmsi) {
   renderCards();
   renderDetail(mmsi);
 }
+
+// Desativar follow se o utilizador mexer no mapa manualmente
+map.on('dragstart', () => { followMode = false; });
 
 // ── HUD ────────────────────────────────────────────────────────────────────
 function refreshHUD() {
@@ -513,6 +533,33 @@ async function fetchAPDL() {
     log('APDL erro: ' + e.message, 'err');
   }
 }
+
+// ── Barragens do Douro Português ─────────────────────────────────────────
+const BARRAGENS = [
+  { name: 'Crestuma-Lever', lat: 41.0583, lon: -8.3167, pk: 'PK 22' },
+  { name: 'Carrapatelo',    lat: 41.1583, lon: -8.0667, pk: 'PK 68' },
+  { name: 'Régua',          lat: 41.1667, lon: -7.7833, pk: 'PK 101' },
+  { name: 'Valeira',        lat: 41.1667, lon: -7.3167, pk: 'PK 144' },
+  { name: 'Pocinho',        lat: 41.1500, lon: -7.1167, pk: 'PK 164' },
+];
+
+const barragemIcon = L.divIcon({
+  className: '',
+  html: `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="8" width="18" height="6" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5" rx="1"/>
+    <rect x="9" y="2" width="4" height="18" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5" rx="1"/>
+    <circle cx="11" cy="11" r="2" fill="#58a6ff"/>
+  </svg>`,
+  iconSize: [22, 22], iconAnchor: [11, 11]
+});
+
+BARRAGENS.forEach(b => {
+  L.marker([b.lat, b.lon], { icon: barragemIcon })
+    .bindPopup(`<div class="popup-title">🏗️ ${b.name}</div>
+      <div class="popup-row">${b.pk}</div>
+      <div class="popup-row">Barragem do Douro</div>`)
+    .addTo(map);
+});
 
 // ── Atualizar ícones ao mudar zoom ────────────────────────────────────────
 map.on('zoomend', () => {
