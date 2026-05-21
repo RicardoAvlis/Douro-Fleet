@@ -161,21 +161,35 @@ map.setView([41.14, -8.67], 12);
 const markers = {};
 
 function shipIcon(mmsi, active) {
+  const d = state[mmsi] || {};
+  const cog = d.cog != null ? d.cog : 0;
   const c = active ? '#3fb950' : '#8b949e';
+  const stroke = active ? '#0d6e2a' : '#30363d';
+  // Silhueta de navio vista de cima, orientada pelo COG
+  const svg = `<svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg"
+    style="transform:rotate(${cog}deg);transform-origin:center;">
+    <path d="M14,2 L18,8 L18,20 Q18,23 14,25 Q10,23 10,20 L10,8 Z"
+      fill="${c}" stroke="${stroke}" stroke-width="1.2"/>
+    <line x1="14" y1="8" x2="14" y2="18" stroke="${stroke}" stroke-width="1"/>
+    <line x1="10" y1="13" x2="18" y2="13" stroke="${stroke}" stroke-width="1"/>
+  </svg>`;
   return L.divIcon({
     className: '',
-    html: `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="11,2 20,20 11,15 2,20" fill="${c}" stroke="#0d1117" stroke-width="1.5"/>
-    </svg>`,
-    iconSize: [22, 22], iconAnchor: [11, 11]
+    html: svg,
+    iconSize: [28, 28], iconAnchor: [14, 14]
   });
 }
 
 function buildPopup(d) {
+  const dest = d.dest || '—';
+  const eta = d.jul_eta || d.eta || '—';
+  const status = d.jul_status ? `<div class="popup-row">Estado <span>${d.jul_status}</span></div>` : '';
   return `<div class="popup-title">${d.flag} ${d.name}</div>
     <div class="popup-row">SOG <span>${fmt(d.sog, 1)} kn</span></div>
     <div class="popup-row">COG <span>${fmt(d.cog, 0)}°</span></div>
-    <div class="popup-row">Destino <span>${d.dest || '—'}</span></div>`;
+    <div class="popup-row">Próximo porto <span style="color:#3fb950;font-weight:700">${dest}</span></div>
+    <div class="popup-row">ETA <span style="color:#d29922">${eta}</span></div>
+    ${status}`;
 }
 
 function updateMarker(d) {
@@ -227,8 +241,8 @@ function renderDetail(mmsi) {
       <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog != null ? fmt(d.cog,0)+'°' : '—'}</div></div>
       <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value">${d.lat != null ? fmt(d.lat,5) : '—'}</div></div>
       <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value">${d.lon != null ? fmt(d.lon,5) : '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Destino</div><div class="dp-value" style="font-size:12px">${d.dest || '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">ETA</div><div class="dp-value" style="font-size:12px">${d.eta || '—'}</div></div>
+      <div class="dp-cell" style="grid-column:1/-1;border-color:var(--green)"><div class="dp-label">⚓ Próximo porto</div><div class="dp-value" style="font-size:14px;color:var(--green)">${d.dest || '—'}</div></div>
+      <div class="dp-cell" style="grid-column:1/-1;border-color:var(--amber)"><div class="dp-label">🕐 ETA estimada</div><div class="dp-value" style="font-size:13px;color:var(--amber)">${d.jul_eta || d.eta || '—'}</div></div>
       <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught != null ? fmt(d.draught,1)+' m' : '—'}</div></div>
       <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:11px">${d.ts ? relTime(d.ts) : '—'}</div></div>
     </div>
@@ -403,6 +417,16 @@ function connect() {
   };
 }
 
+// ── Helpers APDL ──────────────────────────────────────────────────────────
+function fmtEtaAPDL(dtStr) {
+  if (!dtStr) return '—';
+  try {
+    const d = new Date(dtStr);
+    return d.toLocaleDateString('pt-PT', {day:'2-digit',month:'2-digit'}) + ' ' +
+           d.toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) { return dtStr; }
+}
+
 // ── APDL API (fonte principal — cobertura local Rio Douro) ─────────────────
 const APDL_URL = 'https://raspy-union-da12.ricardo-silva-43d.workers.dev';
 
@@ -425,6 +449,11 @@ async function fetchAPDL() {
       } catch(e) {}
       if (s.sog != null) d.sog = parseFloat(s.sog);
       if (s.cog != null) d.cog = parseFloat(s.cog);
+      if (s.destination) d.dest = s.destination.trim();
+      if (s.eta_predicted) d.eta = fmtEtaAPDL(s.eta_predicted);
+      if (s.jul_eta) d.jul_eta = fmtEtaAPDL(s.jul_eta);
+      if (s.jul_status) d.jul_status = s.jul_status;
+      if (s.draught) d.draught = parseFloat(s.draught);
       d.ts = new Date(s.last_updated).getTime() || Date.now();
       d.source = 'APDL';
       updateMarker(d);
