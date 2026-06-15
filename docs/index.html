@@ -614,17 +614,21 @@ async function fetchHidro() {
 // ── Atualizar ícones ao mudar zoom ────────────────────────────────────────
 // zoom handled by Mapbox GL JS natively
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// ── Init — aguardar mapa carregar ─────────────────────────────────────────
 renderCards();
 setInterval(() => { renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD(); }, 5000);
-// APDL: polling a cada 30s (fonte principal, cobertura local)
-fetchAPDL();
-setInterval(fetchAPDL, 30000);
-// AISStream: fallback global
-connect();
-// Infohídrica: barragens a cada 5 min
-fetchHidro();
-setInterval(fetchHidro, 300000);
+
+map.on('load', () => {
+  addBarragemMarkers();
+  // APDL: polling a cada 30s
+  fetchAPDL();
+  setInterval(fetchAPDL, 30000);
+  // AISStream: fallback global
+  connect();
+  // Infohídrica: barragens a cada 5 min
+  fetchHidro();
+  setInterval(fetchHidro, 300000);
+});
 </script>
 </body>
 </html>
