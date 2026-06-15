@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Douro Fleet — Dashboard Operacional</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 <style>
   :root {
     --bg: #0d1117;
@@ -37,6 +37,8 @@
   .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); background: var(--panel); overflow-y: auto; }
   .map-wrap { flex: 1; position: relative; }
   #map { width: 100%; height: 100%; }
+  .mapboxgl-ctrl-logo { display: none !important; }
+  .mapboxgl-ctrl-attrib { font-size: 9px !important; }
 
   /* ── Sidebar sections ── */
   .s-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 12px 16px 6px; border-bottom: 1px solid var(--border); }
@@ -169,67 +171,37 @@ setInterval(() => {
   clockEl.textContent = new Date().toLocaleTimeString('pt-PT', {timeZone:'Europe/Lisbon'});
 }, 1000);
 
-// ── Map ────────────────────────────────────────────────────────────────────
-const map = L.map('map', { zoomControl: true, attributionControl: true });
-// Esri World Street Map — limpo, leve, sem conta necessária
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '© Esri © OpenStreetMap',
-  maxZoom: 19
-}).addTo(map);
-map.setView([41.14, -8.67], 12);
+// ── Map (Mapbox GL JS) ────────────────────────────────────────────────────
+mapboxgl.accessToken = 'pk.eyJ1IjoicmljYXJkb2F2bGlzIiwiYSI6ImNtcWZhaHMzdjE4ZzMycXI4djN0eWd1N2wifQ.fnFTDDKAR8s6DU-g1ei3Ng';
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v12',
+  center: [-8.67, 41.14],
+  zoom: 11,
+  attributionControl: false
+});
+map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 
 const markers = {};
 
-function metersToPixels(meters) {
-  // Leaflet: a cada zoom, 1 grau lat ≈ 111320m
-  // pixels por metro = (tileSize * 2^zoom) / (circumference * cos(lat))
-  const zoom = map.getZoom();
-  const lat = map.getCenter().lat;
-  const metersPerPx = (40075016.686 * Math.cos(lat * Math.PI / 180)) / Math.pow(2, zoom + 8);
-  return Math.max(4, meters / metersPerPx);
-}
-
-function shipIcon(mmsi, active) {
+function shipEl(mmsi, active) {
   const d = state[mmsi] || {};
   const cog = d.cog != null ? d.cog : 0;
   const c = active ? '#3fb950' : '#8b949e';
   const stroke = active ? '#0d6e2a' : '#30363d';
-
-  // Dimensões reais em metros
-  const lenM = (d.dim_a || 20) + (d.dim_b || 20); // comprimento total
-  const wM   = (d.dim_c || 5)  + (d.dim_d || 5);  // largura total
-
-  // Converter para píxeis com base no zoom atual, com limites min/max
-  const lenPx = Math.min(120, Math.max(16, metersToPixels(lenM)));
-  const wPx   = Math.min(40,  Math.max(6,  metersToPixels(wM)));
-
-  const cx = wPx / 2;
-  const cy = lenPx / 2;
-
-  // Silhueta de navio: proa apontada para cima (Norte = 0°)
-  const bow = lenPx * 0.15; // comprimento da proa arredondada
-  const svg = `<svg width="${wPx}" height="${lenPx}"
-    viewBox="0 0 ${wPx} ${lenPx}"
+  const el = document.createElement('div');
+  el.innerHTML = `<svg width="24" height="36" viewBox="0 0 24 36"
     xmlns="http://www.w3.org/2000/svg"
-    style="transform:rotate(${cog}deg);transform-origin:${cx}px ${cy}px;overflow:visible">
-    <path d="M${cx},0
-             L${wPx},${bow}
-             L${wPx},${lenPx}
-             L0,${lenPx}
-             L0,${bow} Z"
-      fill="${c}" stroke="${stroke}" stroke-width="1.2" opacity="0.92"/>
-    <line x1="${cx}" y1="${bow}" x2="${cx}" y2="${lenPx * 0.7}"
-      stroke="${stroke}" stroke-width="0.8" opacity="0.6"/>
-    <line x1="${wPx * 0.2}" y1="${lenPx * 0.5}" x2="${wPx * 0.8}" y2="${lenPx * 0.5}"
-      stroke="${stroke}" stroke-width="0.8" opacity="0.6"/>
+    style="transform:rotate(${cog}deg);transform-origin:12px 18px;display:block">
+    <path d="M12,0 L24,8 L24,36 L0,36 L0,8 Z"
+      fill="${c}" stroke="${stroke}" stroke-width="1.5" opacity="0.95"/>
+    <line x1="12" y1="8" x2="12" y2="28" stroke="${stroke}" stroke-width="1" opacity="0.6"/>
+    <line x1="4" y1="20" x2="20" y2="20" stroke="${stroke}" stroke-width="1" opacity="0.6"/>
   </svg>`;
-
-  return L.divIcon({
-    className: '',
-    html: svg,
-    iconSize: [wPx, lenPx],
-    iconAnchor: [cx, cy]
-  });
+  el.style.cursor = 'pointer';
+  return el;
 }
 
 function buildPopup(d) {
@@ -244,27 +216,38 @@ function buildPopup(d) {
     ${status}`;
 }
 
-let followMode = false; // segue o navio selecionado
+let followMode = false;
 
 function updateMarker(d) {
   if (!d.lat || !d.lon) return;
-  const ll = [d.lat, d.lon];
+  const lngLat = [d.lon, d.lat];
   const active = d.mmsi === selectedMMSI;
-  const icon = shipIcon(d.mmsi, active);
+
   if (markers[d.mmsi]) {
-    markers[d.mmsi].setLatLng(ll);
-    markers[d.mmsi].setIcon(icon);
-    markers[d.mmsi].setPopupContent(buildPopup(d));
+    markers[d.mmsi].setLngLat(lngLat);
+    // Atualizar ícone (cor e rotação)
+    const el = markers[d.mmsi].getElement();
+    const c = active ? '#3fb950' : '#8b949e';
+    const stroke = active ? '#0d6e2a' : '#30363d';
+    const cog = d.cog != null ? d.cog : 0;
+    el.querySelector('svg').style.transform = `rotate(${cog}deg)`;
+    el.querySelector('path').setAttribute('fill', c);
+    el.querySelector('path').setAttribute('stroke', stroke);
   } else {
-    const m = L.marker(ll, { icon })
-      .bindPopup(buildPopup(d), { maxWidth: 220 })
+    const el = shipEl(d.mmsi, active);
+    el.addEventListener('click', () => selectShip(d.mmsi));
+    const popup = new mapboxgl.Popup({ offset: 20, maxWidth: '220px' })
+      .setHTML(buildPopup(d));
+    const m = new mapboxgl.Marker({ element: el, anchor: 'center' })
+      .setLngLat(lngLat)
+      .setPopup(popup)
       .addTo(map);
-    m.on('click', () => selectShip(d.mmsi));
     markers[d.mmsi] = m;
   }
-  // Se este é o navio selecionado e follow está ativo, centra o mapa
+
+  // Follow mode — centra o mapa no navio selecionado
   if (d.mmsi === selectedMMSI && followMode) {
-    map.panTo(ll, { animate: true, duration: 0.5 });
+    map.easeTo({ center: lngLat, duration: 500 });
   }
 }
 
@@ -316,18 +299,28 @@ function renderDetail(mmsi) {
 
 function selectShip(mmsi) {
   selectedMMSI = mmsi;
-  followMode = true; // ativar follow ao selecionar
+  followMode = true;
   const d = state[mmsi];
   if (d && d.lat && d.lon) {
-    map.setView([d.lat, d.lon], 14, { animate: true });
-    markers[mmsi]?.openPopup();
+    map.flyTo({ center: [d.lon, d.lat], zoom: 14, duration: 1000 });
+    markers[mmsi]?.togglePopup();
   }
-  Object.entries(markers).forEach(([m, mk]) => mk.setIcon(shipIcon(m, m === mmsi)));
+  // Atualizar cores dos marcadores
+  Object.entries(markers).forEach(([m, mk]) => {
+    const el = mk.getElement();
+    const active = m === mmsi;
+    const c = active ? '#3fb950' : '#8b949e';
+    const stroke = active ? '#0d6e2a' : '#30363d';
+    if (el.querySelector('path')) {
+      el.querySelector('path').setAttribute('fill', c);
+      el.querySelector('path').setAttribute('stroke', stroke);
+    }
+  });
   renderCards();
   renderDetail(mmsi);
 }
 
-// Desativar follow se o utilizador arrastar o mapa manualmente
+// Desativar follow se utilizador arrastar manualmente
 map.on('dragend', () => { followMode = false; });
 
 // ── HUD ────────────────────────────────────────────────────────────────────
@@ -564,13 +557,19 @@ const barragemIcon = L.divIcon({
   iconSize: [22, 22], iconAnchor: [11, 11]
 });
 
-BARRAGENS.forEach(b => {
-  L.marker([b.lat, b.lon], { icon: barragemIcon })
-    .bindPopup(`<div class="popup-title">🏗️ ${b.name}</div>
-      <div class="popup-row">${b.pk}</div>
-      <div class="popup-row">Barragem do Douro</div>`)
-    .addTo(map);
-});
+function addBarragemMarkers() {
+  BARRAGENS.forEach(b => {
+    const el = document.createElement('div');
+    el.innerHTML = `<div style="background:#1f6feb;border:2px solid #58a6ff;border-radius:4px;padding:2px 5px;font-size:10px;font-weight:700;color:white;cursor:pointer">🏗 ${b.sigla}</div>`;
+    const popup = new mapboxgl.Popup({ offset: 15 })
+      .setHTML(`<div class="popup-title">🏗️ ${b.name}</div><div class="popup-row">${b.pk}</div>`);
+    new mapboxgl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([b.lon, b.lat])
+      .setPopup(popup)
+      .addTo(map);
+  });
+}
+map.on('load', addBarragemMarkers);
 
 // ── Barragens Infohídrica ─────────────────────────────────────────────────
 function pctColor(p) {
@@ -613,12 +612,7 @@ async function fetchHidro() {
 }
 
 // ── Atualizar ícones ao mudar zoom ────────────────────────────────────────
-map.on('zoomend', () => {
-  Object.keys(markers).forEach(mmsi => {
-    const active = mmsi === selectedMMSI;
-    markers[mmsi].setIcon(shipIcon(mmsi, active));
-  });
-});
+// zoom handled by Mapbox GL JS natively
 
 // ── Init ───────────────────────────────────────────────────────────────────
 renderCards();
