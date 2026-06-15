@@ -68,6 +68,17 @@
   .dp-link:hover { opacity: 1; background: rgba(31,111,235,.15); }
   .dp-empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
 
+  /* ── Barragens ── */
+  .barr-section { border-top: 1px solid var(--border); padding: 8px; flex-shrink: 0; }
+  .barr-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 4px 0 8px; display: flex; justify-content: space-between; }
+  .barr-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 7px 10px; margin-bottom: 5px; }
+  .barr-name { font-size: 11px; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .barr-pct { font-size: 10px; font-weight: 700; }
+  .barr-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .barr-row span { color: var(--text); font-weight: 600; }
+  .barr-bar { background: var(--border); border-radius: 2px; height: 4px; margin-top: 5px; }
+  .barr-fill { height: 4px; border-radius: 2px; transition: width .5s; }
+
   /* ── Log ── */
   .log-area { border-top: 1px solid var(--border); }
   .log-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 8px 16px 4px; display: flex; justify-content: space-between; align-items: center; }
@@ -108,6 +119,13 @@
 
     <div class="detail-panel" id="detail-panel">
       <div class="dp-empty">← seleciona um navio</div>
+    </div>
+
+    <div class="barr-section">
+      <div class="barr-title">🏗️ Barragens do Douro <span id="barr-ts">—</span></div>
+      <div id="barr-list">
+        <div style="color:var(--muted);font-size:11px">A carregar...</div>
+      </div>
     </div>
 
     <div class="log-area">
@@ -153,18 +171,10 @@ setInterval(() => {
 
 // ── Map ────────────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl: true, attributionControl: true });
-// Tiles leves estilo minimalista (CartoDB Positron)
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO',
-  subdomains: 'abcd',
+// Esri World Street Map — limpo, leve, sem conta necessária
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Esri © OpenStreetMap',
   maxZoom: 19
-}).addTo(map);
-
-// Camada náutica OpenSeaMap (boias, marcações, portos)
-L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
-  attribution: '© OpenSeaMap',
-  maxZoom: 18,
-  opacity: 0.8
 }).addTo(map);
 map.setView([41.14, -8.67], 12);
 
@@ -317,8 +327,8 @@ function selectShip(mmsi) {
   renderDetail(mmsi);
 }
 
-// Desativar follow se o utilizador mexer no mapa manualmente
-map.on('dragstart', () => { followMode = false; });
+// Desativar follow se o utilizador arrastar o mapa manualmente
+map.on('dragend', () => { followMode = false; });
 
 // ── HUD ────────────────────────────────────────────────────────────────────
 function refreshHUD() {
@@ -484,6 +494,7 @@ function fmtEtaAPDL(dtStr) {
 
 // ── APDL API (fonte principal — cobertura local Rio Douro) ─────────────────
 const APDL_URL = 'https://raspy-union-da12.ricardo-silva-43d.workers.dev';
+const HIDRO_URL = 'https://small-hall-03b3.ricardo-silva-43d.workers.dev';
 
 async function fetchAPDL() {
   try {
@@ -561,6 +572,46 @@ BARRAGENS.forEach(b => {
     .addTo(map);
 });
 
+// ── Barragens Infohídrica ─────────────────────────────────────────────────
+function pctColor(p) {
+  if (p >= 90) return '#3fb950';
+  if (p >= 70) return '#d29922';
+  return '#f85149';
+}
+
+function renderBarragens(data) {
+  const list = document.getElementById('barr-list');
+  const ts = document.getElementById('barr-ts');
+  if (!data || !data.barragens) return;
+  ts.textContent = new Date(data.timestamp).toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+  list.innerHTML = data.barragens.map(b => {
+    const pct = b.percentagem || 0;
+    const c = pctColor(pct);
+    return `<div class="barr-card">
+      <div class="barr-name">
+        <span>🏗️ ${b.nome}</span>
+        <span class="barr-pct" style="color:${c}">${pct}%</span>
+      </div>
+      <div class="barr-row">Cota <span>${b.cota != null ? b.cota.toFixed(2)+' m' : '—'} / ${b.npa} m</span></div>
+      <div class="barr-row">Lançado <span style="color:#f85149;font-weight:700">${b.lancado != null ? b.lancado+' m³/s' : '—'}</span></div>
+      <div class="barr-row">Afluente <span style="color:#58a6ff">${b.afluente != null ? b.afluente+' m³/s' : '—'}</span></div>
+      <div class="barr-bar"><div class="barr-fill" style="width:${pct}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function fetchHidro() {
+  try {
+    const r = await fetch(HIDRO_URL);
+    if (!r.ok) { log('Hidro: HTTP ' + r.status, 'err'); return; }
+    const data = await r.json();
+    renderBarragens(data);
+    log('Barragens atualizadas', 'info');
+  } catch(e) {
+    log('Hidro erro: ' + e.message, 'err');
+  }
+}
+
 // ── Atualizar ícones ao mudar zoom ────────────────────────────────────────
 map.on('zoomend', () => {
   Object.keys(markers).forEach(mmsi => {
@@ -577,6 +628,9 @@ fetchAPDL();
 setInterval(fetchAPDL, 30000);
 // AISStream: fallback global
 connect();
+// Infohídrica: barragens a cada 5 min
+fetchHidro();
+setInterval(fetchHidro, 300000);
 </script>
 </body>
 </html>
