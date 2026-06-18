@@ -245,32 +245,34 @@ const BARRAGENS = [
   { name: 'Pocinho',        label: 'POC', lat: 41.1500, lon: -7.1167, pk: 'PK 164' },
 ];
 
-// Navio real: 80m comprimento, 14m boca
-// Ratio boca/comprimento = 14/80 = 0.175
-// No mapa a ~zoom 13, 1px ≈ ~4.5m → 80m ≈ 18px, 14m ≈ 3px
-// Mantemos a proporção mas tornamos o navio visível: viewBox 18×100 (ratio 0.18)
-// Proa arredondada, popa reta, casco sólido navy + borda branca
-function makeShipSVG(cog, active) {
-  const rot    = cog ?? 0;
-  // Hull: 18 wide × 100 tall (proporção 1:5.7, próxima dos 14:80=1:5.7)
-  // Proa no topo (ponta), popa em baixo (reta)
-  // Cor: fill sempre navy, stroke branco para visibilidade sobre qualquer fundo
-  const fillColor   = '#0f3460';
-  const strokeColor = '#ffffff';
-  const strokeW     = active ? 2.5 : 1.8;
+// ── Geometria do navio em coordenadas reais (escala com o zoom) ──────────
+// Forma: elipse 80m × 14m — navios de rio têm proa E popa arredondadas
+const DEG2RAD = Math.PI / 180;
+const EARTH_R  = 6378137;
 
-  return `<svg width="18" height="48" viewBox="0 0 18 48"
-      xmlns="http://www.w3.org/2000/svg"
-      style="transform:rotate(${rot}deg);transform-origin:9px 24px;display:block;overflow:visible">
-    <!-- Casco: proa arredondada no topo, popa reta em baixo -->
-    <path d="M9,1 C9,1 17,12 17,32 L17,47 L1,47 L1,32 C1,12 9,1 9,1 Z"
-      fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeW}" stroke-linejoin="round"/>
-    <!-- Linha de centro (discreta) -->
-    <line x1="9" y1="8" x2="9" y2="43" stroke="${strokeColor}" stroke-width="0.6" opacity="0.35"/>
-  </svg>`;
+function offsetLatLon(lat, lon, dx, dy) {
+  const dlat = (dy / EARTH_R) * (180 / Math.PI);
+  const dlon = (dx / (EARTH_R * Math.cos(lat * DEG2RAD))) * (180 / Math.PI);
+  return [lon + dlon, lat + dlat];
 }
 
-// Popup minimalista — só nome e velocidade, sem fechar
+// Polígono elíptico rodado pelo COG (0=Norte, horário)
+function shipPolygon(lat, lon, cogDeg) {
+  const L = 40, B = 7, N = 32; // semi-eixos: 80m comp, 14m boca
+  const heading = (90 - (cogDeg ?? 0)) * DEG2RAD;
+  const coords = [];
+  for (let i = 0; i <= N; i++) {
+    const theta = (2 * Math.PI * i) / N;
+    const ex = B * Math.cos(theta);
+    const ey = L * Math.sin(theta);
+    const rx = ex * Math.cos(heading) - ey * Math.sin(heading);
+    const ry = ex * Math.sin(heading) + ey * Math.cos(heading);
+    coords.push(offsetLatLon(lat, lon, rx, ry));
+  }
+  return coords;
+}
+
+// Popup minimalista — só nome e velocidade
 function buildMiniPopup(d) {
   const sog = d.sog != null ? d.sog.toFixed(1) + ' kn' : '—';
   return `<div class="mini-popup">${d.name || d.mmsi}<div class="mp-sub">${sog} · ${(d.cog ?? 0).toFixed(0)}°</div></div>`;
@@ -283,8 +285,28 @@ let ws           = null;
 let wsRetry      = 0;
 let followMode   = false;
 let mapLoaded    = false;
-const markers    = {};
-const popups     = {};
+const popups     = {};  // mmsi → popup permanente de label
+
+// GeoJSON para os cascos — atualizado cada vez que chega posição
+const shipsGeoJSON = { type: 'FeatureCollection', features: [] };
+
+function shipFeature(d) {
+  return {
+    type: 'Feature',
+    id: d.mmsi,
+    properties: { mmsi: d.mmsi, name: d.name, selected: d.mmsi === selectedMMSI ? 1 : 0 },
+    geometry: { type: 'Polygon', coordinates: [shipPolygon(d.lat, d.lon, d.cog)] }
+  };
+}
+
+function refreshShipLayer() {
+  if (!mapLoaded) return;
+  shipsGeoJSON.features = Object.values(state)
+    .filter(d => d.lat != null && d.lon != null)
+    .map(shipFeature);
+  const src = map.getSource('ships');
+  if (src) src.setData(shipsGeoJSON);
+}
 
 // ── Clock ──
 function tickClock() {
@@ -327,7 +349,7 @@ function formatETA(eta) {
   return String(eta);
 }
 
-// ── Map — estilo Streets (mais natural, próximo Google Maps) ──
+// ── Map ──
 mapboxgl.accessToken = MAPBOX_TOKEN;
 const map = new mapboxgl.Map({
   container: 'map',
@@ -340,34 +362,24 @@ map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 map.on('dragstart', () => { followMode = false; });
 
-// ── Marker: criar / atualizar ──
+// ── Actualizar navio: GeoJSON layer (escala com zoom) + popup label ──────
 function updateMarker(d) {
   if (!mapLoaded || d.lat == null || d.lon == null) return;
   const lngLat = [d.lon, d.lat];
-  const active = d.mmsi === selectedMMSI;
 
-  if (markers[d.mmsi]) {
-    markers[d.mmsi].setLngLat(lngLat);
-    markers[d.mmsi].getElement().innerHTML = makeShipSVG(d.cog, active);
-    popups[d.mmsi]?.setLngLat(lngLat).setHTML(buildMiniPopup(d));
+  // Actualizar/criar popup de label permanente
+  if (popups[d.mmsi]) {
+    popups[d.mmsi].setLngLat(lngLat).setHTML(buildMiniPopup(d));
   } else {
-    const el = document.createElement('div');
-    el.style.cursor = 'pointer';
-    el.innerHTML = makeShipSVG(d.cog, active);
-
-    // Popup permanente (sem botão fechar, sem fechar ao clicar no mapa)
     const popup = new mapboxgl.Popup({
-      offset: [0, -30], closeButton: false, closeOnClick: false,
+      offset: [0, 0], closeButton: false, closeOnClick: false,
       anchor: 'bottom', maxWidth: '160px'
     }).setHTML(buildMiniPopup(d)).setLngLat(lngLat).addTo(map);
     popups[d.mmsi] = popup;
-
-    markers[d.mmsi] = new mapboxgl.Marker({ element: el, anchor: 'center' })
-      .setLngLat(lngLat)
-      .addTo(map);
-
-    el.addEventListener('click', () => selectShip(d.mmsi));
   }
+
+  // Actualizar layer GeoJSON
+  refreshShipLayer();
 
   if (d.mmsi === selectedMMSI && followMode) map.easeTo({ center: lngLat, duration: 500 });
 }
@@ -386,8 +398,45 @@ function addBarragemMarkers() {
   });
 }
 
+// Clicar num navio no mapa
+function setupShipLayerClick() {
+  map.on('click', 'ships-fill', (e) => {
+    const mmsi = e.features?.[0]?.properties?.mmsi;
+    if (mmsi) selectShip(String(mmsi));
+  });
+  map.on('mouseenter', 'ships-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'ships-fill', () => { map.getCanvas().style.cursor = ''; });
+}
+
 map.on('load', () => {
   mapLoaded = true;
+
+  // Source + layers para os cascos dos navios
+  map.addSource('ships', { type: 'geojson', data: shipsGeoJSON });
+
+  // Fill: navy para normal, azul vivo para seleccionado
+  map.addLayer({
+    id: 'ships-fill',
+    type: 'fill',
+    source: 'ships',
+    paint: {
+      'fill-color': ['case', ['==', ['get', 'selected'], 1], '#1d6fa4', '#0f3460'],
+      'fill-opacity': 0.92,
+    }
+  });
+
+  // Outline branco
+  map.addLayer({
+    id: 'ships-outline',
+    type: 'line',
+    source: 'ships',
+    paint: {
+      'line-color': '#ffffff',
+      'line-width': ['case', ['==', ['get', 'selected'], 1], 2.5, 1.5],
+    }
+  });
+
+  setupShipLayerClick();
   addBarragemMarkers();
   renderCards();
   fetchAPDL();
@@ -466,10 +515,7 @@ function selectShip(mmsi) {
   followMode   = true;
   const d = state[mmsi];
   if (d?.lat!=null && d?.lon!=null) map.flyTo({ center:[d.lon,d.lat], zoom:14, duration:900 });
-  Object.keys(markers).forEach(m => {
-    const sd = state[m]||{};
-    markers[m].getElement().innerHTML = makeShipSVG(sd.cog, m===mmsi);
-  });
+  refreshShipLayer();  // actualiza cores (selected)
   renderCards();
   renderDetail(mmsi);
 }
