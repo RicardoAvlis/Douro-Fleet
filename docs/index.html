@@ -26,11 +26,8 @@
     --amber-bg:  #fef3c7;
     --red:       #991b1b;
     --red-bg:    #fee2e2;
-    --accent:    #0f3460;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     background: var(--bg);
     color: var(--text);
@@ -54,232 +51,88 @@
     flex-shrink: 0;
     border-bottom: 3px solid #e2a400;
   }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    color: #fff;
-  }
-  .logo-anchor {
-    font-size: 22px;
-    line-height: 1;
-    color: #e2a400;
-  }
-  .logo-sub {
-    font-size: 11px;
-    font-weight: 400;
-    color: rgba(255,255,255,.55);
-    margin-left: 4px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-  }
-  .header-center {
-    font-size: 12px;
-    color: rgba(255,255,255,.5);
-    letter-spacing: .05em;
-    text-transform: uppercase;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  #clock {
-    font-size: 20px;
-    font-weight: 700;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    color: #fff;
-    letter-spacing: .08em;
-  }
-  #clock-date {
-    font-size: 11px;
-    color: rgba(255,255,255,.45);
-    text-align: right;
-    letter-spacing: .04em;
-    margin-top: 1px;
-  }
-  #ws-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.2);
-    color: rgba(255,255,255,.5);
-    font-weight: 600;
-    letter-spacing: .04em;
-    transition: all .4s;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .04em; color: #fff; }
+  .logo-anchor { font-size: 22px; line-height: 1; color: #e2a400; }
+  .logo-sub { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.55); margin-left: 4px; letter-spacing: .06em; text-transform: uppercase; }
+  .header-center { font-size: 12px; color: rgba(255,255,255,.5); letter-spacing: .05em; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  #clock { font-size: 20px; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; color: #fff; letter-spacing: .08em; }
+  #clock-date { font-size: 11px; color: rgba(255,255,255,.45); text-align: right; letter-spacing: .04em; margin-top: 1px; }
+  #ws-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.5); font-weight: 600; letter-spacing: .04em; transition: all .4s; }
   #ws-badge.ok  { background: rgba(22,101,52,.3); border-color: #4ade80; color: #4ade80; }
   #ws-badge.err { background: rgba(153,27,27,.3); border-color: #f87171; color: #f87171; }
 
-  /* ── Main layout ── */
-  .main { display: flex; flex: 1; overflow: hidden; gap: 0; }
-
-  /* ── Left panel ── */
-  .left-panel {
-    width: 320px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-  }
-
-  /* ── Right panel ── */
-  .right-panel {
-    width: 320px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    overflow-y: auto;
-  }
-
-  /* ── Map ── */
-  .map-wrap { flex: 1; position: relative; background: #d6dde8; }
+  /* ── Layout ── */
+  .main { display: flex; flex: 1; overflow: hidden; }
+  .left-panel  { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; }
+  .right-panel { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; }
+  .map-wrap { flex: 1; position: relative; }
   #map { width: 100%; height: 100%; }
   .mapboxgl-ctrl-logo   { display: none !important; }
-  .mapboxgl-ctrl-attrib { font-size: 9px !important; background: rgba(255,255,255,.6) !important; }
+  .mapboxgl-ctrl-attrib { font-size: 9px !important; }
 
-  /* Mapbox popup */
+  /* Mapbox popup — minimalista */
   .mapboxgl-popup-content {
-    background: var(--surface) !important;
+    background: rgba(255,255,255,.96) !important;
     border: 1px solid var(--border2) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,.12) !important;
-    padding: 12px 14px !important;
-    min-width: 200px;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.14) !important;
+    padding: 7px 10px !important;
+    min-width: 0 !important;
     color: var(--text) !important;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   }
-  .mapboxgl-popup-tip { border-top-color: var(--surface) !important; border-bottom-color: var(--surface) !important; }
-  .mapboxgl-popup-close-button { color: var(--muted) !important; font-size: 18px !important; top: 6px !important; right: 8px !important; }
+  .mapboxgl-popup-tip { border-top-color: rgba(255,255,255,.96) !important; border-bottom-color: rgba(255,255,255,.96) !important; }
+  .mapboxgl-popup-close-button { display: none !important; }
 
-  /* ── Panel section headers ── */
-  .section-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px 10px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface2);
-    flex-shrink: 0;
-  }
-  .section-head h2 {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0;
-  }
-  .section-badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: var(--blue-bg);
-    color: var(--navy);
-    letter-spacing: .04em;
-  }
+  /* ── Section headers ── */
+  .section-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 10px; border-bottom: 1px solid var(--border); background: var(--surface2); flex-shrink: 0; }
+  .section-head h2 { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--blue-bg); color: var(--navy); letter-spacing: .04em; }
 
   /* ── Ship cards ── */
   .ship-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-
-  .ship-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    cursor: pointer;
-    transition: border-color .2s, box-shadow .2s;
-    overflow: hidden;
-  }
-  .ship-card:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,111,164,.08); }
+  .ship-card { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; transition: border-color .2s, box-shadow .2s; overflow: hidden; }
+  .ship-card:hover  { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,111,164,.08); }
   .ship-card.active { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(15,52,96,.1); }
-
-  .sc-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px 6px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sc-name { font-weight: 700; font-size: 13px; color: var(--text); }
-  .sc-mmsi { font-size: 10px; color: var(--subtle); font-family: monospace; }
-  .sc-live-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border2); flex-shrink: 0;
-    margin-left: 6px;
-    transition: background .3s;
-  }
+  .sc-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 6px; border-bottom: 1px solid var(--border); }
+  .sc-name  { font-weight: 700; font-size: 13px; color: var(--text); }
+  .sc-mmsi  { font-size: 10px; color: var(--subtle); font-family: monospace; }
+  .sc-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; margin-left: 6px; transition: background .3s; }
   .sc-live-dot.live  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
   .sc-live-dot.stale { background: #f59e0b; }
-
-  .sc-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
-  .sc-cell {
-    padding: 7px 10px;
-    border-right: 1px solid var(--border);
-  }
+  .sc-body { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .sc-cell { padding: 7px 10px; border-right: 1px solid var(--border); }
   .sc-cell:last-child { border-right: none; }
   .sc-label { font-size: 9px; color: var(--subtle); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 2px; }
   .sc-value { font-size: 13px; font-weight: 700; color: var(--text); font-family: monospace; }
-
-  .sc-footer {
-    padding: 5px 12px;
-    font-size: 10px;
-    color: var(--muted);
-    background: var(--surface2);
-    display: flex;
-    justify-content: space-between;
-  }
+  .sc-footer { padding: 5px 12px; font-size: 10px; color: var(--muted); background: var(--surface2); display: flex; justify-content: space-between; }
   .sc-dest { font-weight: 600; color: var(--navy); }
 
   /* ── Detail panel ── */
-  .detail-wrap { padding: 12px; flex: 1; }
+  .detail-wrap { padding: 12px; }
   .dp-empty { color: var(--subtle); font-size: 12px; padding: 20px 4px; text-align: center; }
   .dp-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .dp-name { font-size: 16px; font-weight: 700; color: var(--navy); }
+  .dp-name   { font-size: 16px; font-weight: 700; color: var(--navy); }
   .dp-source { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: var(--blue-bg); color: var(--blue); font-weight: 600; }
-
-  .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-  .dp-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
-  .dp-label { font-size: 9px; color: var(--subtle); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
-  .dp-value { font-size: 14px; font-weight: 700; color: var(--text); font-family: monospace; }
-
-  .dp-highlight {
-    grid-column: 1/-1;
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin-bottom: 0;
-  }
+  .dp-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .dp-cell   { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+  .dp-label  { font-size: 9px; color: var(--subtle); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
+  .dp-value  { font-size: 14px; font-weight: 700; color: var(--text); font-family: monospace; }
+  .dp-highlight { grid-column: 1/-1; border-radius: 6px; padding: 10px 12px; }
   .dp-highlight.green { background: var(--green-bg); border: 1px solid #86efac; }
   .dp-highlight.amber { background: var(--amber-bg); border: 1px solid #fcd34d; }
   .dp-highlight .dp-label { color: var(--green); }
   .dp-highlight.amber .dp-label { color: var(--amber); }
   .dp-highlight .dp-value { font-size: 15px; color: var(--green); }
   .dp-highlight.amber .dp-value { color: var(--amber); }
-
   .dp-links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .dp-link {
-    font-size: 10px; color: var(--navy); text-decoration: none;
-    padding: 4px 9px; border: 1px solid var(--border2);
-    border-radius: 5px; font-weight: 600;
-    transition: background .15s, border-color .15s;
-  }
+  .dp-link { font-size: 10px; color: var(--navy); text-decoration: none; padding: 4px 9px; border: 1px solid var(--border2); border-radius: 5px; font-weight: 600; transition: background .15s, border-color .15s; }
   .dp-link:hover { background: var(--blue-bg); border-color: var(--blue); }
 
   /* ── Barragens ── */
   .barr-list { padding: 10px; display: flex; flex-direction: column; gap: 7px; }
-  .barr-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 8px 11px;
-  }
+  .barr-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 11px; }
   .barr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
   .barr-name { font-size: 11px; font-weight: 700; color: var(--text); }
   .barr-pct  { font-size: 11px; font-weight: 700; }
@@ -290,67 +143,26 @@
   .barr-fill { height: 5px; border-radius: 3px; transition: width .6s; }
 
   /* ── Log ── */
-  .log-area { border-top: 1px solid var(--border); flex-shrink: 0; }
-  .log-head {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 16px 6px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
+  .log-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px 6px; background: var(--surface2); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
   .log-head h2 { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   #msg-count { font-size: 10px; font-weight: 700; color: var(--navy); font-family: monospace; }
-  #log {
-    height: 120px;
-    overflow-y: auto;
-    padding: 6px 12px;
-    display: flex;
-    flex-direction: column-reverse;
-    background: #f9fafb;
-  }
+  #log { height: 120px; overflow-y: auto; padding: 6px 12px; display: flex; flex-direction: column-reverse; background: #f9fafb; }
   .log-line      { font-size: 10px; color: var(--muted); line-height: 1.7; font-family: monospace; }
   .log-line.ok   { color: #166534; }
   .log-line.err  { color: #991b1b; }
   .log-line.info { color: #1d4ed8; }
 
   /* ── Map HUD ── */
-  .map-hud {
-    position: absolute; bottom: 14px; left: 14px; z-index: 10;
-    display: flex; flex-direction: column; gap: 6px;
-    pointer-events: none;
-  }
-  .hud-pill {
-    background: rgba(255,255,255,.92);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--navy);
-    box-shadow: 0 1px 4px rgba(0,0,0,.1);
-  }
+  .map-hud { position: absolute; bottom: 14px; left: 14px; z-index: 10; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+  .hud-pill { background: rgba(255,255,255,.92); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--navy); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
   .hud-pill span { color: var(--blue); }
 
-  /* ── Popup ── */
-  .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--navy); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-  .popup-row   { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; gap: 20px; margin-bottom: 3px; }
-  .popup-row span { font-weight: 700; color: var(--text); font-family: monospace; }
-  .popup-dest  { color: #166534 !important; }
-  .popup-eta   { color: #92400e !important; }
+  /* ── Popup minimalista ── */
+  .mini-popup { font-size: 11px; font-weight: 700; color: var(--navy); white-space: nowrap; line-height: 1.3; }
+  .mini-popup .mp-sub { font-size: 10px; font-weight: 400; color: var(--muted); margin-top: 1px; }
 
-  /* ── Barragem markers ── */
-  .barr-marker {
-    background: var(--navy);
-    border: 1.5px solid #e2a400;
-    border-radius: 4px;
-    padding: 2px 7px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #e2a400;
-    cursor: pointer;
-    white-space: nowrap;
-    letter-spacing: .04em;
-    box-shadow: 0 1px 4px rgba(0,0,0,.2);
-  }
+  /* ── Barragem marker ── */
+  .barr-marker { background: var(--navy); border: 1.5px solid #e2a400; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 700; color: #e2a400; cursor: pointer; white-space: nowrap; letter-spacing: .04em; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
 </style>
 </head>
 <body>
@@ -373,15 +185,13 @@
 
 <div class="main">
 
-  <!-- Left: Frota -->
   <div class="left-panel">
     <div class="section-head">
       <h2>Frota em operação</h2>
       <span class="section-badge" id="live-count">0 / 3 ao vivo</span>
     </div>
     <div class="ship-list" id="ship-list"></div>
-
-    <div class="section-head" style="margin-top:auto">
+    <div class="section-head">
       <h2>Detalhe</h2>
     </div>
     <div class="detail-wrap" id="detail-panel">
@@ -389,7 +199,6 @@
     </div>
   </div>
 
-  <!-- Center: Mapa -->
   <div class="map-wrap">
     <div id="map"></div>
     <div class="map-hud">
@@ -398,7 +207,6 @@
     </div>
   </div>
 
-  <!-- Right: Barragens + Log -->
   <div class="right-panel">
     <div class="section-head">
       <h2>Barragens do Douro</h2>
@@ -407,12 +215,11 @@
     <div class="barr-list" id="barr-list">
       <div style="color:var(--subtle);font-size:11px;padding:8px 0">A carregar...</div>
     </div>
-
     <div class="log-head">
       <h2>Feed AIS</h2>
       <span id="msg-count">0 msg</span>
     </div>
-    <div id="log" class="log-area" style="border-top:none"></div>
+    <div id="log"></div>
   </div>
 
 </div>
@@ -438,6 +245,37 @@ const BARRAGENS = [
   { name: 'Pocinho',        label: 'POC', lat: 41.1500, lon: -7.1167, pk: 'PK 164' },
 ];
 
+// Navio real: 80m comprimento, 14m boca
+// Ratio boca/comprimento = 14/80 = 0.175
+// No mapa a ~zoom 13, 1px ≈ ~4.5m → 80m ≈ 18px, 14m ≈ 3px
+// Mantemos a proporção mas tornamos o navio visível: viewBox 18×100 (ratio 0.18)
+// Proa arredondada, popa reta, casco sólido navy + borda branca
+function makeShipSVG(cog, active) {
+  const rot    = cog ?? 0;
+  // Hull: 18 wide × 100 tall (proporção 1:5.7, próxima dos 14:80=1:5.7)
+  // Proa no topo (ponta), popa em baixo (reta)
+  // Cor: fill sempre navy, stroke branco para visibilidade sobre qualquer fundo
+  const fillColor   = '#0f3460';
+  const strokeColor = '#ffffff';
+  const strokeW     = active ? 2.5 : 1.8;
+
+  return `<svg width="18" height="48" viewBox="0 0 18 48"
+      xmlns="http://www.w3.org/2000/svg"
+      style="transform:rotate(${rot}deg);transform-origin:9px 24px;display:block;overflow:visible">
+    <!-- Casco: proa arredondada no topo, popa reta em baixo -->
+    <path d="M9,1 C9,1 17,12 17,32 L17,47 L1,47 L1,32 C1,12 9,1 9,1 Z"
+      fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeW}" stroke-linejoin="round"/>
+    <!-- Linha de centro (discreta) -->
+    <line x1="9" y1="8" x2="9" y2="43" stroke="${strokeColor}" stroke-width="0.6" opacity="0.35"/>
+  </svg>`;
+}
+
+// Popup minimalista — só nome e velocidade, sem fechar
+function buildMiniPopup(d) {
+  const sog = d.sog != null ? d.sog.toFixed(1) + ' kn' : '—';
+  return `<div class="mini-popup">${d.name || d.mmsi}<div class="mp-sub">${sog} · ${(d.cog ?? 0).toFixed(0)}°</div></div>`;
+}
+
 const state      = {};
 let selectedMMSI = null;
 let msgCount     = 0;
@@ -448,7 +286,7 @@ let mapLoaded    = false;
 const markers    = {};
 const popups     = {};
 
-// ── Clock ──────────────────────────────────────────────────────────────────
+// ── Clock ──
 function tickClock() {
   const now = new Date();
   document.getElementById('clock').textContent =
@@ -459,61 +297,41 @@ function tickClock() {
 tickClock();
 setInterval(tickClock, 1000);
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-function fmt(v, dec) {
-  if (v == null || isNaN(v)) return '—';
-  return Number(v).toFixed(dec);
-}
+// ── Helpers ──
+function fmt(v, dec) { if (v == null || isNaN(v)) return '—'; return Number(v).toFixed(dec); }
 function relTime(ts) {
   const s = Math.round((Date.now() - ts) / 1000);
-  if (s < 60) return s + 's';
-  if (s < 3600) return Math.floor(s / 60) + 'min';
-  return Math.floor(s / 3600) + 'h';
+  if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s/60) + 'min'; return Math.floor(s/3600) + 'h';
 }
-function log(msg, cls = '') {
-  const el   = document.getElementById('log');
-  const line = document.createElement('div');
+function log(msg, cls='') {
+  const el = document.getElementById('log'), line = document.createElement('div');
   line.className = 'log-line ' + cls;
-  const t = new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const t = new Date().toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
   line.textContent = `[${t}] ${msg}`;
   el.prepend(line);
   while (el.children.length > 100) el.removeChild(el.lastChild);
 }
 function fmtEtaAPDL(dtStr) {
   if (!dtStr) return '—';
-  try {
-    const d = new Date(dtStr);
-    return d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }) + ' ' +
-           d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-  } catch(e) { return dtStr; }
+  try { const d = new Date(dtStr); return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}); }
+  catch(e) { return dtStr; }
 }
-function pctColor(p) {
-  if (p >= 80) return '#166534';
-  if (p >= 50) return '#92400e';
-  return '#991b1b';
-}
-function pctBg(p) {
-  if (p >= 80) return '#22c55e';
-  if (p >= 50) return '#f59e0b';
-  return '#ef4444';
-}
+function pctColor(p) { return p>=80?'#166534':p>=50?'#92400e':'#991b1b'; }
+function pctBg(p)    { return p>=80?'#22c55e':p>=50?'#f59e0b':'#ef4444'; }
 function formatETA(eta) {
   if (!eta) return '—';
-  if (typeof eta === 'object') {
-    const m  = String(eta.Month  || 0).padStart(2, '0');
-    const d  = String(eta.Day    || 0).padStart(2, '0');
-    const h  = String(eta.Hour   || 0).padStart(2, '0');
-    const mn = String(eta.Minute || 0).padStart(2, '0');
-    return `${d}/${m} ${h}:${mn}`;
+  if (typeof eta==='object') {
+    return String(eta.Day||0).padStart(2,'0')+'/'+String(eta.Month||0).padStart(2,'0')+' '+
+           String(eta.Hour||0).padStart(2,'0')+':'+String(eta.Minute||0).padStart(2,'0');
   }
   return String(eta);
 }
 
-// ── Map ────────────────────────────────────────────────────────────────────
+// ── Map — estilo Streets (mais natural, próximo Google Maps) ──
 mapboxgl.accessToken = MAPBOX_TOKEN;
 const map = new mapboxgl.Map({
   container: 'map',
-  style: 'mapbox://styles/mapbox/light-v11',
+  style: 'mapbox://styles/mapbox/streets-v12',
   center: [-8.1, 41.14],
   zoom: 9,
   attributionControl: false,
@@ -522,29 +340,7 @@ map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 map.on('dragstart', () => { followMode = false; });
 
-// ── Ship SVG marker ────────────────────────────────────────────────────────
-function makeShipSVG(cog, active) {
-  const fill   = active ? '#0f3460' : '#64748b';
-  const stroke = active ? '#e2a400' : '#94a3b8';
-  const rot    = cog ?? 0;
-  return `<svg width="20" height="30" viewBox="0 0 20 30" xmlns="http://www.w3.org/2000/svg"
-      style="transform:rotate(${rot}deg);transform-origin:10px 15px;display:block">
-    <path d="M10,1 L19,9 L19,29 L1,29 L1,9 Z" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
-    <line x1="10" y1="9" x2="10" y2="25" stroke="${stroke}" stroke-width="1" opacity="0.5"/>
-    <line x1="3"  y1="18" x2="17" y2="18" stroke="${stroke}" stroke-width="1" opacity="0.5"/>
-  </svg>`;
-}
-
-function buildPopupHTML(d) {
-  return `<div class="popup-title">${d.flag || ''} ${d.name || d.mmsi}</div>
-    <div class="popup-row">SOG <span>${fmt(d.sog, 1)} kn</span></div>
-    <div class="popup-row">COG <span>${fmt(d.cog, 0)}°</span></div>
-    <div class="popup-row">Destino <span class="popup-dest">${d.dest || '—'}</span></div>
-    <div class="popup-row">ETA <span class="popup-eta">${d.jul_eta || d.eta || '—'}</span></div>
-    ${d.jul_status ? `<div class="popup-row">Estado <span>${d.jul_status}</span></div>` : ''}
-    <div class="popup-row" style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">Fonte <span style="color:var(--muted);font-weight:400">${d.source || 'AIS'}</span></div>`;
-}
-
+// ── Marker: criar / atualizar ──
 function updateMarker(d) {
   if (!mapLoaded || d.lat == null || d.lon == null) return;
   const lngLat = [d.lon, d.lat];
@@ -553,27 +349,27 @@ function updateMarker(d) {
   if (markers[d.mmsi]) {
     markers[d.mmsi].setLngLat(lngLat);
     markers[d.mmsi].getElement().innerHTML = makeShipSVG(d.cog, active);
-    popups[d.mmsi]?.setHTML(buildPopupHTML(d));
+    popups[d.mmsi]?.setLngLat(lngLat).setHTML(buildMiniPopup(d));
   } else {
     const el = document.createElement('div');
     el.style.cursor = 'pointer';
     el.innerHTML = makeShipSVG(d.cog, active);
 
-    const popup = new mapboxgl.Popup({ offset: 22, maxWidth: '240px', closeButton: true });
-    popup.setHTML(buildPopupHTML(d));
+    // Popup permanente (sem botão fechar, sem fechar ao clicar no mapa)
+    const popup = new mapboxgl.Popup({
+      offset: [0, -30], closeButton: false, closeOnClick: false,
+      anchor: 'bottom', maxWidth: '160px'
+    }).setHTML(buildMiniPopup(d)).setLngLat(lngLat).addTo(map);
     popups[d.mmsi] = popup;
 
-    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+    markers[d.mmsi] = new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat(lngLat)
-      .setPopup(popup)
       .addTo(map);
-    markers[d.mmsi] = marker;
+
     el.addEventListener('click', () => selectShip(d.mmsi));
   }
 
-  if (d.mmsi === selectedMMSI && followMode) {
-    map.easeTo({ center: lngLat, duration: 500 });
-  }
+  if (d.mmsi === selectedMMSI && followMode) map.easeTo({ center: lngLat, duration: 500 });
 }
 
 function addBarragemMarkers() {
@@ -581,8 +377,8 @@ function addBarragemMarkers() {
     const el = document.createElement('div');
     el.className = 'barr-marker';
     el.textContent = '⊞ ' + b.label;
-    const popup = new mapboxgl.Popup({ offset: 14, maxWidth: '180px' })
-      .setHTML(`<div class="popup-title">🏗️ ${b.name}</div><div class="popup-row">${b.pk}</div>`);
+    const popup = new mapboxgl.Popup({ offset: 14, maxWidth: '180px', closeButton: false })
+      .setHTML(`<div class="mini-popup">${b.name}<div class="mp-sub">${b.pk}</div></div>`);
     new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat([b.lon, b.lat])
       .setPopup(popup)
@@ -599,87 +395,64 @@ map.on('load', () => {
   connect();
   fetchHidro();
   setInterval(fetchHidro, 300000);
-  setInterval(() => {
-    renderCards();
-    if (selectedMMSI) renderDetail(selectedMMSI);
-    refreshHUD();
-  }, 5000);
+  setInterval(() => { renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD(); }, 5000);
   log('Mapa inicializado', 'ok');
 });
 
-// ── Ship cards ─────────────────────────────────────────────────────────────
+// ── Ship cards ──
 function renderCards() {
   const list = document.getElementById('ship-list');
   list.innerHTML = '';
   let liveCount = 0;
-
   VESSELS.forEach(v => {
-    const d    = state[v.mmsi] || {};
-    const live = d.ts && (Date.now() - d.ts) < 5 * 60 * 1000;
+    const d = state[v.mmsi] || {};
+    const live = d.ts && (Date.now()-d.ts) < 5*60*1000;
     if (live) liveCount++;
-
     const card = document.createElement('div');
-    card.className = 'ship-card' + (selectedMMSI === v.mmsi ? ' active' : '');
+    card.className = 'ship-card' + (selectedMMSI===v.mmsi?' active':'');
     card.innerHTML = `
       <div class="sc-header">
         <div>
           <div class="sc-name">${v.flag} ${v.name}</div>
           <div class="sc-mmsi">MMSI ${v.mmsi}</div>
         </div>
-        <div class="sc-live-dot ${live ? 'live' : (d.ts ? 'stale' : '')}"></div>
+        <div class="sc-live-dot ${live?'live':(d.ts?'stale':'')}"></div>
       </div>
       <div class="sc-body">
-        <div class="sc-cell">
-          <div class="sc-label">SOG</div>
-          <div class="sc-value">${d.sog != null ? fmt(d.sog, 1) + ' kn' : '—'}</div>
-        </div>
-        <div class="sc-cell">
-          <div class="sc-label">COG</div>
-          <div class="sc-value">${d.cog != null ? fmt(d.cog, 0) + '°' : '—'}</div>
-        </div>
-        <div class="sc-cell">
-          <div class="sc-label">Calado</div>
-          <div class="sc-value">${d.draught != null ? fmt(d.draught, 1) + 'm' : '—'}</div>
-        </div>
+        <div class="sc-cell"><div class="sc-label">SOG</div><div class="sc-value">${d.sog!=null?fmt(d.sog,1)+' kn':'—'}</div></div>
+        <div class="sc-cell"><div class="sc-label">COG</div><div class="sc-value">${d.cog!=null?fmt(d.cog,0)+'°':'—'}</div></div>
+        <div class="sc-cell"><div class="sc-label">Calado</div><div class="sc-value">${d.draught!=null?fmt(d.draught,1)+'m':'—'}</div></div>
       </div>
       <div class="sc-footer">
-        <span>→ <span class="sc-dest">${d.dest || '—'}</span></span>
-        <span>${d.ts ? relTime(d.ts) + ' atrás' : 'sem dados'}</span>
-      </div>
-    `;
+        <span>→ <span class="sc-dest">${d.dest||'—'}</span></span>
+        <span>${d.ts?relTime(d.ts)+' atrás':'sem dados'}</span>
+      </div>`;
     card.onclick = () => selectShip(v.mmsi);
     list.appendChild(card);
   });
-
   document.getElementById('live-count').textContent = `${liveCount} / 3 ao vivo`;
 }
 
 function renderDetail(mmsi) {
   const panel = document.getElementById('detail-panel');
   if (!mmsi) { panel.innerHTML = '<div class="dp-empty">Seleciona um navio para ver detalhes</div>'; return; }
-  const v = VESSELS.find(x => x.mmsi === mmsi) || {};
-  const d = state[mmsi] || {};
+  const v = VESSELS.find(x=>x.mmsi===mmsi)||{};
+  const d = state[mmsi]||{};
   panel.innerHTML = `
     <div class="dp-name-row">
-      <span class="dp-name">${v.flag || ''} ${v.name || mmsi}</span>
-      ${d.source ? `<span class="dp-source">${d.source}</span>` : ''}
+      <span class="dp-name">${v.flag||''} ${v.name||mmsi}</span>
+      ${d.source?`<span class="dp-source">${d.source}</span>`:''}
     </div>
     <div class="dp-grid">
-      <div class="dp-cell"><div class="dp-label">SOG</div><div class="dp-value">${d.sog != null ? fmt(d.sog, 1) + ' kn' : '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog != null ? fmt(d.cog, 0) + '°' : '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value" style="font-size:12px">${d.lat != null ? fmt(d.lat, 5) : '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value" style="font-size:12px">${d.lon != null ? fmt(d.lon, 5) : '—'}</div></div>
-      <div class="dp-highlight green">
-        <div class="dp-label">Próximo porto</div>
-        <div class="dp-value">${d.dest || '—'}</div>
-      </div>
-      <div class="dp-highlight amber">
-        <div class="dp-label">ETA estimada</div>
-        <div class="dp-value">${d.jul_eta || d.eta || '—'}</div>
-      </div>
-      ${d.jul_status ? `<div class="dp-cell" style="grid-column:1/-1"><div class="dp-label">Estado operacional</div><div class="dp-value" style="font-size:12px;color:var(--navy)">${d.jul_status}</div></div>` : ''}
-      <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught != null ? fmt(d.draught, 1) + ' m' : '—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:12px">${d.ts ? relTime(d.ts) + ' atrás' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">SOG</div><div class="dp-value">${d.sog!=null?fmt(d.sog,1)+' kn':'—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog!=null?fmt(d.cog,0)+'°':'—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value" style="font-size:12px">${d.lat!=null?fmt(d.lat,5):'—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value" style="font-size:12px">${d.lon!=null?fmt(d.lon,5):'—'}</div></div>
+      <div class="dp-highlight green"><div class="dp-label">Próximo porto</div><div class="dp-value">${d.dest||'—'}</div></div>
+      <div class="dp-highlight amber"><div class="dp-label">ETA estimada</div><div class="dp-value">${d.jul_eta||d.eta||'—'}</div></div>
+      ${d.jul_status?`<div class="dp-cell" style="grid-column:1/-1"><div class="dp-label">Estado operacional</div><div class="dp-value" style="font-size:12px;color:var(--navy)">${d.jul_status}</div></div>`:''}
+      <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught!=null?fmt(d.draught,1)+' m':'—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:12px">${d.ts?relTime(d.ts)+' atrás':'—'}</div></div>
     </div>
     <div class="dp-links">
       <a class="dp-link" href="https://www.vesselfinder.com/vessels/details/${mmsi}" target="_blank">VesselFinder ↗</a>
@@ -692,183 +465,141 @@ function selectShip(mmsi) {
   selectedMMSI = mmsi;
   followMode   = true;
   const d = state[mmsi];
-  if (d?.lat != null && d?.lon != null) {
-    map.flyTo({ center: [d.lon, d.lat], zoom: 14, duration: 900 });
-    Object.entries(popups).forEach(([m, p]) => {
-      if (m === mmsi) markers[m]?.togglePopup();
-      else p.remove();
-    });
-  }
+  if (d?.lat!=null && d?.lon!=null) map.flyTo({ center:[d.lon,d.lat], zoom:14, duration:900 });
   Object.keys(markers).forEach(m => {
-    const sd = state[m] || {};
-    markers[m].getElement().innerHTML = makeShipSVG(sd.cog, m === mmsi);
+    const sd = state[m]||{};
+    markers[m].getElement().innerHTML = makeShipSVG(sd.cog, m===mmsi);
   });
   renderCards();
   renderDetail(mmsi);
 }
 
-// ── HUD ────────────────────────────────────────────────────────────────────
+// ── HUD ──
 function refreshHUD() {
-  const live = VESSELS.filter(v => state[v.mmsi]?.lat != null).length;
+  const live = VESSELS.filter(v=>state[v.mmsi]?.lat!=null).length;
   document.getElementById('hud-ships').textContent = live;
-  const latest = Object.values(state).filter(d => d.ts).sort((a, b) => b.ts - a.ts)[0];
-  document.getElementById('hud-time').textContent =
-    latest ? 'Última: ' + relTime(latest.ts) + ' atrás' : 'Última posição: —';
+  const latest = Object.values(state).filter(d=>d.ts).sort((a,b)=>b.ts-a.ts)[0];
+  document.getElementById('hud-time').textContent = latest?'Última: '+relTime(latest.ts)+' atrás':'Última posição: —';
 }
 
-// ── APDL ───────────────────────────────────────────────────────────────────
+// ── APDL ──
 async function fetchAPDL() {
   try {
     const r = await fetch(APDL_URL);
-    if (!r.ok) { log('APDL HTTP ' + r.status, 'err'); return; }
+    if (!r.ok) { log('APDL HTTP '+r.status,'err'); return; }
     const json = await r.json();
-    const ships = json?.data || (Array.isArray(json) ? json : []);
-    let updated = 0;
+    const ships = json?.data||(Array.isArray(json)?json:[]);
+    let updated=0;
     ships.forEach(s => {
-      const mmsi = String(s.mmsi);
+      const mmsi=String(s.mmsi);
       if (!MMSI_SET.has(mmsi)) return;
-      const v = VESSELS.find(x => x.mmsi === mmsi);
-      if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name || s.name, flag: v?.flag || '🇵🇹' };
-      const d = state[mmsi];
-      try {
-        const geo = typeof s.geojson === 'string' ? JSON.parse(s.geojson) : s.geojson;
-        if (geo?.coordinates) { d.lon = geo.coordinates[0]; d.lat = geo.coordinates[1]; }
-      } catch(e) {}
-      if (s.sog != null)   d.sog        = parseFloat(s.sog);
-      if (s.cog != null)   d.cog        = parseFloat(s.cog);
-      if (s.destination)   d.dest       = s.destination.trim();
-      if (s.eta_predicted) d.eta        = fmtEtaAPDL(s.eta_predicted);
-      if (s.jul_eta)       d.jul_eta    = fmtEtaAPDL(s.jul_eta);
-      if (s.jul_status)    d.jul_status = s.jul_status;
-      if (s.draught)       d.draught    = parseFloat(s.draught);
-      d.ts     = new Date(s.last_updated).getTime() || Date.now();
-      d.source = 'APDL';
+      const v=VESSELS.find(x=>x.mmsi===mmsi);
+      if (!state[mmsi]) state[mmsi]={mmsi,name:v?.name||s.name,flag:v?.flag||'🇵🇹'};
+      const d=state[mmsi];
+      try { const geo=typeof s.geojson==='string'?JSON.parse(s.geojson):s.geojson; if (geo?.coordinates){d.lon=geo.coordinates[0];d.lat=geo.coordinates[1];} } catch(e){}
+      if (s.sog!=null)   d.sog=parseFloat(s.sog);
+      if (s.cog!=null)   d.cog=parseFloat(s.cog);
+      if (s.destination) d.dest=s.destination.trim();
+      if (s.eta_predicted) d.eta=fmtEtaAPDL(s.eta_predicted);
+      if (s.jul_eta)       d.jul_eta=fmtEtaAPDL(s.jul_eta);
+      if (s.jul_status)    d.jul_status=s.jul_status;
+      if (s.draught)       d.draught=parseFloat(s.draught);
+      d.ts=new Date(s.last_updated).getTime()||Date.now();
+      d.source='APDL';
       updateMarker(d);
       updated++;
     });
-    if (updated > 0) {
-      log(`APDL — ${updated} navio(s) atualizados`, 'ok');
-      msgCount += updated;
-      document.getElementById('msg-count').textContent = msgCount + ' msg';
-      renderCards();
-      if (selectedMMSI) renderDetail(selectedMMSI);
-      refreshHUD();
-    } else {
-      log('APDL — sem dados dos nossos navios', 'info');
-    }
-  } catch(e) { log('APDL erro: ' + e.message, 'err'); }
+    if (updated>0) {
+      log(`APDL — ${updated} navio(s) atualizados`,'ok');
+      msgCount+=updated;
+      document.getElementById('msg-count').textContent=msgCount+' msg';
+      renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD();
+    } else { log('APDL — sem dados dos nossos navios','info'); }
+  } catch(e) { log('APDL erro: '+e.message,'err'); }
 }
 
-// ── Infohídrica ────────────────────────────────────────────────────────────
+// ── Infohídrica ──
 function renderBarragens(data) {
-  const list = document.getElementById('barr-list');
-  const ts   = document.getElementById('barr-ts');
+  const list=document.getElementById('barr-list'), ts=document.getElementById('barr-ts');
   if (!data?.barragens) return;
-  ts.textContent = new Date(data.timestamp).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-  list.innerHTML = data.barragens.map(b => {
-    const pct = b.percentagem || 0;
-    const c   = pctColor(pct);
-    const bg  = pctBg(pct);
+  ts.textContent=new Date(data.timestamp).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+  list.innerHTML=data.barragens.map(b=>{
+    const pct=b.percentagem||0, c=pctColor(pct), bg=pctBg(pct);
     return `<div class="barr-card">
-      <div class="barr-head">
-        <span class="barr-name">${b.nome}</span>
-        <span class="barr-pct" style="color:${c}">${pct}%</span>
-      </div>
+      <div class="barr-head"><span class="barr-name">${b.nome}</span><span class="barr-pct" style="color:${c}">${pct}%</span></div>
       <div class="barr-stats">
-        <div class="barr-stat">Cota <span>${b.cota != null ? b.cota.toFixed(2) + ' m' : '—'}</span></div>
+        <div class="barr-stat">Cota <span>${b.cota!=null?b.cota.toFixed(2)+' m':'—'}</span></div>
         <div class="barr-stat">NPA <span>${b.npa} m</span></div>
-        <div class="barr-stat">Lançado <span style="color:#991b1b">${b.lancado != null ? b.lancado + ' m³/s' : '—'}</span></div>
-        <div class="barr-stat">Afluente <span style="color:#1d4ed8">${b.afluente != null ? b.afluente + ' m³/s' : '—'}</span></div>
+        <div class="barr-stat">Lançado <span style="color:#991b1b">${b.lancado!=null?b.lancado+' m³/s':'—'}</span></div>
+        <div class="barr-stat">Afluente <span style="color:#1d4ed8">${b.afluente!=null?b.afluente+' m³/s':'—'}</span></div>
       </div>
       <div class="barr-bar"><div class="barr-fill" style="width:${pct}%;background:${bg}"></div></div>
     </div>`;
   }).join('');
 }
-
 async function fetchHidro() {
   try {
-    const r = await fetch(HIDRO_URL);
-    if (!r.ok) { log('Hidro HTTP ' + r.status, 'err'); return; }
+    const r=await fetch(HIDRO_URL);
+    if (!r.ok) { log('Hidro HTTP '+r.status,'err'); return; }
     renderBarragens(await r.json());
-    log('Barragens atualizadas', 'info');
-  } catch(e) { log('Hidro erro: ' + e.message, 'err'); }
+    log('Barragens atualizadas','info');
+  } catch(e) { log('Hidro erro: '+e.message,'err'); }
 }
 
-// ── AISStream ──────────────────────────────────────────────────────────────
-const WS_BADGE = document.getElementById('ws-badge');
-
+// ── AISStream ──
+const WS_BADGE=document.getElementById('ws-badge');
 function connect() {
-  log('A ligar ao AISStream…', 'info');
-  WS_BADGE.className = '';
-  WS_BADGE.textContent = '● AIS';
-  ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
-  ws.onopen = () => {
-    wsRetry = 0;
-    WS_BADGE.className   = 'ok';
-    WS_BADGE.textContent = '● AIS';
-    log('AISStream ligado', 'ok');
+  log('A ligar ao AISStream…','info');
+  WS_BADGE.className=''; WS_BADGE.textContent='● AIS';
+  ws=new WebSocket('wss://stream.aisstream.io/v0/stream');
+  ws.onopen=()=>{
+    wsRetry=0; WS_BADGE.className='ok'; WS_BADGE.textContent='● AIS';
+    log('AISStream ligado','ok');
     ws.send(JSON.stringify({
-      APIKey: API_KEY,
-      BoundingBoxes: [[[-90, -180], [90, 180]]],
-      FilterMessageTypes: ['PositionReport', 'StandardClassBPositionReport', 'ShipStaticData'],
-      MMSIs: VESSELS.map(v => parseInt(v.mmsi)),
+      APIKey:API_KEY, BoundingBoxes:[[[-90,-180],[90,180]]],
+      FilterMessageTypes:['PositionReport','StandardClassBPositionReport','ShipStaticData'],
+      MMSIs:VESSELS.map(v=>parseInt(v.mmsi)),
     }));
   };
-  ws.onmessage = async (evt) => {
-    try {
-      const text = evt.data instanceof Blob ? await evt.data.text() : evt.data;
-      handleAIS(text);
-    } catch(e) { log('Msg erro: ' + e.message, 'err'); }
+  ws.onmessage=async(evt)=>{
+    try { const text=evt.data instanceof Blob?await evt.data.text():evt.data; handleAIS(text); }
+    catch(e) { log('Msg erro: '+e.message,'err'); }
   };
-  ws.onerror = () => log('AISStream erro', 'err');
-  ws.onclose = (e) => {
-    WS_BADGE.className   = 'err';
-    WS_BADGE.textContent = '● AIS';
-    const delay = Math.min(30000, 1000 * 2 ** wsRetry++);
-    log(`AIS fechado (${e.code}) — retry ${delay / 1000}s`, 'err');
-    setTimeout(connect, delay);
+  ws.onerror=()=>log('AISStream erro','err');
+  ws.onclose=(e)=>{
+    WS_BADGE.className='err'; WS_BADGE.textContent='● AIS';
+    const delay=Math.min(30000,1000*2**wsRetry++);
+    log(`AIS fechado (${e.code}) — retry ${delay/1000}s`,'err');
+    setTimeout(connect,delay);
   };
 }
-
 function handleAIS(json) {
-  let msg;
-  try { msg = JSON.parse(json); } catch(e) { return; }
-  const mmsi = String(
-    msg?.MetaData?.MMSI ||
-    msg?.Message?.PositionReport?.UserID ||
-    msg?.Message?.StandardClassBPositionReport?.UserID ||
-    msg?.Message?.ShipStaticData?.UserID || ''
-  );
+  let msg; try { msg=JSON.parse(json); } catch(e){return;}
+  const mmsi=String(msg?.MetaData?.MMSI||msg?.Message?.PositionReport?.UserID||msg?.Message?.StandardClassBPositionReport?.UserID||msg?.Message?.ShipStaticData?.UserID||'');
   if (!MMSI_SET.has(mmsi)) return;
-  const v = VESSELS.find(x => x.mmsi === mmsi);
-  if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name, flag: v?.flag };
-  const d = state[mmsi];
-  d.ts = Date.now();
-
-  const pos = msg?.Message?.PositionReport || msg?.Message?.StandardClassBPositionReport;
+  const v=VESSELS.find(x=>x.mmsi===mmsi);
+  if (!state[mmsi]) state[mmsi]={mmsi,name:v?.name,flag:v?.flag};
+  const d=state[mmsi]; d.ts=Date.now();
+  const pos=msg?.Message?.PositionReport||msg?.Message?.StandardClassBPositionReport;
   if (pos) {
-    const lat = pos.Latitude, lon = pos.Longitude;
-    if (lat != null && Math.abs(lat) <= 90)  d.lat = lat;
-    if (lon != null && Math.abs(lon) <= 180) d.lon = lon;
-    if (pos.SpeedOverGround  != null) d.sog = pos.SpeedOverGround;
-    if (pos.CourseOverGround != null) d.cog = pos.CourseOverGround;
-    d.source = 'AISStream';
+    const lat=pos.Latitude, lon=pos.Longitude;
+    if (lat!=null&&Math.abs(lat)<=90)  d.lat=lat;
+    if (lon!=null&&Math.abs(lon)<=180) d.lon=lon;
+    if (pos.SpeedOverGround!=null)  d.sog=pos.SpeedOverGround;
+    if (pos.CourseOverGround!=null) d.cog=pos.CourseOverGround;
+    d.source='AISStream';
     updateMarker(d);
-    log(`${v?.name || mmsi} — ${fmt(d.lat, 4)}N ${fmt(d.lon, 4)}E  ${fmt(d.sog, 1)}kn`, 'ok');
-    msgCount++;
-    document.getElementById('msg-count').textContent = msgCount + ' msg';
-    refreshHUD();
-    if (selectedMMSI === mmsi) renderDetail(mmsi);
-    renderCards();
+    log(`${v?.name||mmsi} — ${fmt(d.lat,4)}N ${fmt(d.lon,4)}E  ${fmt(d.sog,1)}kn`,'ok');
+    msgCount++; document.getElementById('msg-count').textContent=msgCount+' msg';
+    refreshHUD(); if (selectedMMSI===mmsi) renderDetail(mmsi); renderCards();
   }
-  const stat = msg?.Message?.ShipStaticData;
+  const stat=msg?.Message?.ShipStaticData;
   if (stat) {
-    if (stat.Destination) d.dest    = stat.Destination.trim();
-    if (stat.Eta)         d.eta     = formatETA(stat.Eta);
-    if (stat.MaximumStaticDraught) d.draught = stat.MaximumStaticDraught;
-    log(`${v?.name || mmsi} — destino: ${d.dest || '—'}`, 'info');
-    renderCards();
-    if (selectedMMSI === mmsi) renderDetail(mmsi);
+    if (stat.Destination) d.dest=stat.Destination.trim();
+    if (stat.Eta)         d.eta=formatETA(stat.Eta);
+    if (stat.MaximumStaticDraught) d.draught=stat.MaximumStaticDraught;
+    log(`${v?.name||mmsi} — destino: ${d.dest||'—'}`,'info');
+    renderCards(); if (selectedMMSI===mmsi) renderDetail(mmsi);
   }
 }
 </script>
