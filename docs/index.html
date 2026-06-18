@@ -161,6 +161,22 @@
   .mini-popup { font-size: 11px; font-weight: 700; color: var(--navy); white-space: nowrap; line-height: 1.3; }
   .mini-popup .mp-sub { font-size: 10px; font-weight: 400; color: var(--muted); margin-top: 1px; }
 
+  /* ── Navegação por teclado (TV remote) ── */
+  .ship-card:focus {
+    outline: 3px solid #e2a400;
+    outline-offset: 2px;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 6px rgba(226,164,0,.18);
+  }
+  .ship-card { outline: none; }
+  #kb-hint {
+    position: fixed; bottom: 14px; right: 14px; z-index: 100;
+    background: rgba(15,52,96,.88); color: rgba(255,255,255,.75);
+    font-size: 11px; padding: 6px 12px; border-radius: 20px;
+    pointer-events: none; letter-spacing: .03em;
+    transition: opacity .4s;
+  }
+
   /* ── Barragem marker ── */
   .barr-marker { background: var(--navy); border: 1.5px solid #e2a400; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 700; color: #e2a400; cursor: pointer; white-space: nowrap; letter-spacing: .04em; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
 </style>
@@ -256,20 +272,39 @@ function offsetLatLon(lat, lon, dx, dy) {
   return [lon + dlon, lat + dlat];
 }
 
-// Polígono elíptico rodado pelo COG (0=Norte, horário)
+// Polígono do casco: proa semicircular (frente), popa reta (trás)
+// Eixo local: Y positivo = proa, Y negativo = popa
+// 80m comprimento total: proa ocupa ~30m (semicírculo), popa reta nos restantes 50m
 function shipPolygon(lat, lon, cogDeg) {
-  const L = 40, B = 7, N = 32; // semi-eixos: 80m comp, 14m boca
+  const B    = 7;    // meia-boca (14m total)
+  const Lbow = 30;   // comprimento da proa (semicírculo)
+  const Laft = 50;   // comprimento do corpo até à popa
+  const N    = 24;   // pontos no semicírculo da proa
   const heading = (90 - (cogDeg ?? 0)) * DEG2RAD;
-  const coords = [];
+
+  const pts = [];
+
+  // Semicírculo da proa: de -90° a +90° (metade superior da elipse)
   for (let i = 0; i <= N; i++) {
-    const theta = (2 * Math.PI * i) / N;
-    const ex = B * Math.cos(theta);
-    const ey = L * Math.sin(theta);
-    const rx = ex * Math.cos(heading) - ey * Math.sin(heading);
-    const ry = ex * Math.sin(heading) + ey * Math.cos(heading);
-    coords.push(offsetLatLon(lat, lon, rx, ry));
+    const theta = -Math.PI/2 + (Math.PI * i) / N;
+    const lx = B * Math.cos(theta);
+    const ly = Lbow * Math.sin(theta);  // semi-eixo vertical = Lbow
+    pts.push([lx, ly]);
   }
-  return coords;
+
+  // Popa reta: canto direito → canto esquerdo
+  pts.push([ B, -Laft]);
+  pts.push([-B, -Laft]);
+
+  // Fechar (já temos o ponto [-B, 0] do semicírculo)
+  pts.push(pts[0]);
+
+  // Rodar pelo heading e converter para lat/lon
+  return pts.map(([lx, ly]) => {
+    const rx = lx * Math.cos(heading) - ly * Math.sin(heading);
+    const ry = lx * Math.sin(heading) + ly * Math.cos(heading);
+    return offsetLatLon(lat, lon, rx, ry);
+  });
 }
 
 // Popup minimalista — só nome e velocidade
@@ -648,6 +683,74 @@ function handleAIS(json) {
     renderCards(); if (selectedMMSI===mmsi) renderDetail(mmsi);
   }
 }
+
+// ── Navegação por teclado / comando TV ───────────────────────────────────
+let kbFocusIdx = -1;
+
+function kbFocusCard(idx) {
+  idx = Math.max(0, Math.min(VESSELS.length - 1, idx));
+  kbFocusIdx = idx;
+  const cards = document.querySelectorAll('#ship-list .ship-card');
+  if (cards[idx]) {
+    cards[idx].focus({ preventScroll: false });
+    cards[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function kbSelectCurrent() {
+  if (kbFocusIdx >= 0 && kbFocusIdx < VESSELS.length)
+    selectShip(VESSELS[kbFocusIdx].mmsi);
+}
+
+function fitAllShips() {
+  const pos = Object.values(state).filter(d => d.lat != null && d.lon != null);
+  if (!pos.length) return;
+  if (pos.length === 1) { map.flyTo({ center:[pos[0].lon,pos[0].lat], zoom:13, duration:800 }); return; }
+  const lons=pos.map(d=>d.lon), lats=pos.map(d=>d.lat);
+  map.fitBounds([[Math.min(...lons)-0.02,Math.min(...lats)-0.01],[Math.max(...lons)+0.02,Math.max(...lats)+0.01]],{padding:60,duration:800});
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  switch(e.key) {
+    case 'ArrowUp':    e.preventDefault(); kbFocusCard(kbFocusIdx<0?0:kbFocusIdx-1); break;
+    case 'ArrowDown':  e.preventDefault(); kbFocusCard(kbFocusIdx<0?0:kbFocusIdx+1); break;
+    case 'Enter':
+    case ' ':          e.preventDefault(); kbSelectCurrent(); break;
+    case 'ArrowRight': e.preventDefault(); map.zoomIn({duration:300}); break;
+    case 'ArrowLeft':  e.preventDefault(); map.zoomOut({duration:300}); break;
+    case 'm': case 'M': fitAllShips(); break;
+    case '1': kbFocusCard(0); kbSelectCurrent(); break;
+    case '2': kbFocusCard(1); kbSelectCurrent(); break;
+    case '3': kbFocusCard(2); kbSelectCurrent(); break;
+  }
+  showHint();
+});
+
+// Patch renderCards para tabindex + eventos de teclado nos cards
+const _renderCards = renderCards;
+function renderCards() {
+  _renderCards();
+  document.querySelectorAll('#ship-list .ship-card').forEach((card, i) => {
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', (e) => {
+      if (e.key==='Enter'||e.key===' ') { e.preventDefault(); card.click(); }
+      if (e.key==='ArrowDown') { e.preventDefault(); kbFocusCard(i+1); }
+      if (e.key==='ArrowUp')   { e.preventDefault(); kbFocusCard(i-1); }
+    });
+    card.addEventListener('focus', () => { kbFocusIdx = i; });
+  });
+}
+
+// Hint de teclado — desaparece após 6s, reaparece ao pressionar qualquer tecla
+const kbHint = document.getElementById('kb-hint');
+let hintTimer = setTimeout(() => { kbHint.style.opacity='0'; }, 6000);
+function showHint() {
+  kbHint.style.opacity='1';
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => { kbHint.style.opacity='0'; }, 6000);
+}
 </script>
+  <div id="kb-hint">▲▼ Navegar · Enter Selecionar · ← Zoom out · → Zoom in</div>
 </body>
 </html>
