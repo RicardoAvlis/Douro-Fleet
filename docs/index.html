@@ -178,7 +178,19 @@
   }
 
   /* ── Barragem marker ── */
-  .barr-marker { background: var(--navy); border: 1.5px solid #e2a400; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 700; color: #e2a400; cursor: pointer; white-space: nowrap; letter-spacing: .04em; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .barr-marker {
+    background: rgba(255,255,255,.82);
+    border-left: 3px solid #0f3460;
+    border-radius: 0 3px 3px 0;
+    padding: 2px 6px 2px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #0f3460;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: .01em;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
 </style>
 </head>
 <body>
@@ -254,11 +266,11 @@ const VESSELS = [
 const MMSI_SET = new Set(VESSELS.map(v => v.mmsi));
 
 const BARRAGENS = [
-  { name: 'Crestuma-Lever', label: 'CRE', lat: 41.0583, lon: -8.3167, pk: 'PK 22' },
-  { name: 'Carrapatelo',    label: 'CAR', lat: 41.1583, lon: -8.0667, pk: 'PK 68' },
-  { name: 'Régua',          label: 'REG', lat: 41.1667, lon: -7.7833, pk: 'PK 101' },
-  { name: 'Valeira',        label: 'VAL', lat: 41.1667, lon: -7.3167, pk: 'PK 144' },
-  { name: 'Pocinho',        label: 'POC', lat: 41.1500, lon: -7.1167, pk: 'PK 164' },
+  { name: 'Crestuma-Lever', lat: 41.07275,  lon: -8.486333, pk: 'PK 22'  },
+  { name: 'Carrapatelo',    lat: 41.084889, lon: -8.130611, pk: 'PK 68'  },
+  { name: 'Régua',          lat: 41.14611,  lon: -7.74000,  pk: 'PK 101' },
+  { name: 'Valeira',        lat: 41.16043,  lon: -7.37512,  pk: 'PK 144' },
+  { name: 'Pocinho',        lat: 41.134306, lon: -7.114111, pk: 'PK 164' },
 ];
 
 // ── Geometria do navio em coordenadas reais (escala com o zoom) ──────────
@@ -423,12 +435,9 @@ function addBarragemMarkers() {
   BARRAGENS.forEach(b => {
     const el = document.createElement('div');
     el.className = 'barr-marker';
-    el.textContent = '⊞ ' + b.label;
-    const popup = new mapboxgl.Popup({ offset: 14, maxWidth: '180px', closeButton: false })
-      .setHTML(`<div class="mini-popup">${b.name}<div class="mp-sub">${b.pk}</div></div>`);
-    new mapboxgl.Marker({ element: el, anchor: 'center' })
+    el.textContent = b.name;
+    new mapboxgl.Marker({ element: el, anchor: 'left' })
       .setLngLat([b.lon, b.lat])
-      .setPopup(popup)
       .addTo(map);
   });
 }
