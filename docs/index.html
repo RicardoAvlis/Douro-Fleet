@@ -8,57 +8,44 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 <style>
   :root {
-    --bg:        #f0f2f5;
-    --surface:   #ffffff;
-    --surface2:  #f7f8fa;
-    --border:    #dde1e8;
-    --border2:   #c5cad4;
-    --text:      #111827;
-    --muted:     #6b7280;
-    --subtle:    #9ca3af;
-    --navy:      #0f3460;
-    --navy2:     #1a4a80;
-    --blue:      #1d6fa4;
-    --blue-bg:   #e8f2fa;
-    --green:     #166534;
-    --green-bg:  #dcfce7;
-    --amber:     #92400e;
-    --amber-bg:  #fef3c7;
-    --red:       #991b1b;
-    --red-bg:    #fee2e2;
+    --bg:       #f0f2f5;
+    --surface:  #ffffff;
+    --surface2: #f7f8fa;
+    --border:   #dde1e8;
+    --border2:  #c5cad4;
+    --text:     #111827;
+    --muted:    #6b7280;
+    --subtle:   #9ca3af;
+    --navy:     #0f3460;
+    --blue:     #1d6fa4;
+    --blue-bg:  #e8f2fa;
+    --green:    #166534;
+    --green-bg: #dcfce7;
+    --amber:    #92400e;
+    --amber-bg: #fef3c7;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    font-size: 13px; height: 100vh;
+    display: flex; flex-direction: column; overflow: hidden;
   }
 
   /* ── Header ── */
   header {
-    height: 52px;
-    background: var(--navy);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    flex-shrink: 0;
-    border-bottom: 3px solid #e2a400;
+    height: 52px; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; flex-shrink: 0; border-bottom: 3px solid #e2a400;
   }
-  .logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .04em; color: #fff; }
-  .logo-anchor { font-size: 22px; line-height: 1; color: #e2a400; }
-  .logo-sub { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.55); margin-left: 4px; letter-spacing: .06em; text-transform: uppercase; }
-  .header-center { font-size: 12px; color: rgba(255,255,255,.5); letter-spacing: .05em; text-transform: uppercase; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .04em; }
+  .logo-anchor { font-size: 22px; color: #e2a400; }
+  .logo-sub { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.5); margin-left: 4px; letter-spacing: .06em; text-transform: uppercase; }
+  .header-center { font-size: 12px; color: rgba(255,255,255,.45); letter-spacing: .05em; text-transform: uppercase; }
   .header-right { display: flex; align-items: center; gap: 20px; }
-  #clock { font-size: 20px; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; color: #fff; letter-spacing: .08em; }
-  #clock-date { font-size: 11px; color: rgba(255,255,255,.45); text-align: right; letter-spacing: .04em; margin-top: 1px; }
-  #ws-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.5); font-weight: 600; letter-spacing: .04em; transition: all .4s; }
+  #clock { font-size: 20px; font-weight: 700; font-family: monospace; color: #fff; letter-spacing: .08em; }
+  #clock-date { font-size: 11px; color: rgba(255,255,255,.4); text-align: right; margin-top: 1px; }
+  #ws-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.5); font-weight: 600; transition: all .4s; }
   #ws-badge.ok  { background: rgba(22,101,52,.3); border-color: #4ade80; color: #4ade80; }
   #ws-badge.err { background: rgba(153,27,27,.3); border-color: #f87171; color: #f87171; }
 
@@ -71,43 +58,40 @@
   .mapboxgl-ctrl-logo   { display: none !important; }
   .mapboxgl-ctrl-attrib { font-size: 9px !important; }
 
-  /* Mapbox popup — minimalista */
+  /* Mapbox popup */
   .mapboxgl-popup-content {
-    background: rgba(255,255,255,.96) !important;
-    border: 1px solid var(--border2) !important;
-    border-radius: 6px !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,.14) !important;
-    padding: 7px 10px !important;
-    min-width: 0 !important;
-    color: var(--text) !important;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: rgba(255,255,255,.96) !important; border: 1px solid var(--border2) !important;
+    border-radius: 6px !important; box-shadow: 0 2px 12px rgba(0,0,0,.14) !important;
+    padding: 7px 10px !important; color: var(--text) !important;
+    font-family: 'Inter', system-ui, sans-serif;
   }
   .mapboxgl-popup-tip { border-top-color: rgba(255,255,255,.96) !important; border-bottom-color: rgba(255,255,255,.96) !important; }
   .mapboxgl-popup-close-button { display: none !important; }
 
   /* ── Section headers ── */
   .section-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 10px; border-bottom: 1px solid var(--border); background: var(--surface2); flex-shrink: 0; }
-  .section-head h2 { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
-  .section-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--blue-bg); color: var(--navy); letter-spacing: .04em; }
+  .section-head h2 { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--blue-bg); color: var(--navy); }
 
   /* ── Ship cards ── */
   .ship-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-  .ship-card { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; transition: border-color .2s, box-shadow .2s; overflow: hidden; }
-  .ship-card:hover  { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,111,164,.08); }
+  .ship-card { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; overflow: hidden; transition: border-color .2s, box-shadow .2s; outline: none; }
+  .ship-card:hover, .ship-card:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,111,164,.1); }
   .ship-card.active { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(15,52,96,.1); }
+  .ship-card:focus { outline: 3px solid #e2a400; outline-offset: 2px; }
   .sc-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 6px; border-bottom: 1px solid var(--border); }
-  .sc-name  { font-weight: 700; font-size: 13px; color: var(--text); }
+  .sc-name  { font-weight: 700; font-size: 13px; }
   .sc-mmsi  { font-size: 10px; color: var(--subtle); font-family: monospace; }
-  .sc-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; margin-left: 6px; transition: background .3s; }
-  .sc-live-dot.live  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
-  .sc-live-dot.stale { background: #f59e0b; }
-  .sc-body { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-  .sc-cell { padding: 7px 10px; border-right: 1px solid var(--border); }
+  .sc-dot   { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; transition: background .3s; }
+  .sc-dot.live  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
+  .sc-dot.stale { background: #f59e0b; }
+  .sc-body  { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .sc-cell  { padding: 7px 10px; border-right: 1px solid var(--border); }
   .sc-cell:last-child { border-right: none; }
   .sc-label { font-size: 9px; color: var(--subtle); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 2px; }
-  .sc-value { font-size: 13px; font-weight: 700; color: var(--text); font-family: monospace; }
+  .sc-value { font-size: 13px; font-weight: 700; font-family: monospace; }
   .sc-footer { padding: 5px 12px; font-size: 10px; color: var(--muted); background: var(--surface2); display: flex; justify-content: space-between; }
-  .sc-dest { font-weight: 600; color: var(--navy); }
+  .sc-dest  { font-weight: 600; color: var(--navy); }
 
   /* ── Detail panel ── */
   .detail-wrap { padding: 12px; }
@@ -118,23 +102,23 @@
   .dp-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
   .dp-cell   { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
   .dp-label  { font-size: 9px; color: var(--subtle); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
-  .dp-value  { font-size: 14px; font-weight: 700; color: var(--text); font-family: monospace; }
-  .dp-highlight { grid-column: 1/-1; border-radius: 6px; padding: 10px 12px; }
-  .dp-highlight.green { background: var(--green-bg); border: 1px solid #86efac; }
-  .dp-highlight.amber { background: var(--amber-bg); border: 1px solid #fcd34d; }
-  .dp-highlight .dp-label { color: var(--green); }
+  .dp-value  { font-size: 14px; font-weight: 700; font-family: monospace; }
+  .dp-highlight { grid-column: 1/-1; border-radius: 6px; padding: 10px 12px; border: 1px solid; }
+  .dp-highlight.green { background: var(--green-bg); border-color: #86efac; }
+  .dp-highlight.amber { background: var(--amber-bg); border-color: #fcd34d; }
+  .dp-highlight.green .dp-label { color: var(--green); }
   .dp-highlight.amber .dp-label { color: var(--amber); }
-  .dp-highlight .dp-value { font-size: 15px; color: var(--green); }
-  .dp-highlight.amber .dp-value { color: var(--amber); }
+  .dp-highlight.green .dp-value { color: var(--green); font-size: 15px; }
+  .dp-highlight.amber .dp-value { color: var(--amber); font-size: 15px; }
   .dp-links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .dp-link { font-size: 10px; color: var(--navy); text-decoration: none; padding: 4px 9px; border: 1px solid var(--border2); border-radius: 5px; font-weight: 600; transition: background .15s, border-color .15s; }
+  .dp-link  { font-size: 10px; color: var(--navy); text-decoration: none; padding: 4px 9px; border: 1px solid var(--border2); border-radius: 5px; font-weight: 600; }
   .dp-link:hover { background: var(--blue-bg); border-color: var(--blue); }
 
   /* ── Barragens ── */
   .barr-list { padding: 10px; display: flex; flex-direction: column; gap: 7px; }
   .barr-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 11px; }
   .barr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-  .barr-name { font-size: 11px; font-weight: 700; color: var(--text); }
+  .barr-name { font-size: 11px; font-weight: 700; }
   .barr-pct  { font-size: 11px; font-weight: 700; }
   .barr-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; margin-bottom: 5px; }
   .barr-stat { font-size: 10px; color: var(--muted); }
@@ -143,10 +127,10 @@
   .barr-fill { height: 5px; border-radius: 3px; transition: width .6s; }
 
   /* ── Log ── */
-  .log-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px 6px; background: var(--surface2); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
+  .log-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px 6px; background: var(--surface2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .log-head h2 { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   #msg-count { font-size: 10px; font-weight: 700; color: var(--navy); font-family: monospace; }
-  #log { height: 120px; overflow-y: auto; padding: 6px 12px; display: flex; flex-direction: column-reverse; background: #f9fafb; }
+  #log { height: 120px; overflow-y: auto; padding: 6px 12px; display: flex; flex-direction: column-reverse; background: #f9fafb; flex-shrink: 0; }
   .log-line      { font-size: 10px; color: var(--muted); line-height: 1.7; font-family: monospace; }
   .log-line.ok   { color: #166534; }
   .log-line.err  { color: #991b1b; }
@@ -157,39 +141,27 @@
   .hud-pill { background: rgba(255,255,255,.92); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--navy); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
   .hud-pill span { color: var(--blue); }
 
-  /* ── Popup minimalista ── */
-  .mini-popup { font-size: 11px; font-weight: 700; color: var(--navy); white-space: nowrap; line-height: 1.3; }
+  /* ── Popup mini ── */
+  .mini-popup { font-size: 11px; font-weight: 700; color: var(--navy); white-space: nowrap; }
   .mini-popup .mp-sub { font-size: 10px; font-weight: 400; color: var(--muted); margin-top: 1px; }
-
-  /* ── Navegação por teclado (TV remote) ── */
-  .ship-card:focus {
-    outline: 3px solid #e2a400;
-    outline-offset: 2px;
-    border-color: var(--navy);
-    box-shadow: 0 0 0 6px rgba(226,164,0,.18);
-  }
-  .ship-card { outline: none; }
-  #kb-hint {
-    position: fixed; bottom: 14px; right: 14px; z-index: 100;
-    background: rgba(15,52,96,.88); color: rgba(255,255,255,.75);
-    font-size: 11px; padding: 6px 12px; border-radius: 20px;
-    pointer-events: none; letter-spacing: .03em;
-    transition: opacity .4s;
-  }
 
   /* ── Barragem marker ── */
   .barr-marker {
     background: rgba(255,255,255,.82);
-    border-left: 3px solid #0f3460;
+    border-left: 3px solid var(--navy);
     border-radius: 0 3px 3px 0;
     padding: 2px 6px 2px 5px;
-    font-size: 10px;
-    font-weight: 600;
-    color: #0f3460;
-    white-space: nowrap;
-    pointer-events: none;
-    letter-spacing: .01em;
+    font-size: 10px; font-weight: 600; color: var(--navy);
+    white-space: nowrap; pointer-events: none;
     box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+
+  /* ── KB hint ── */
+  #kb-hint {
+    position: fixed; bottom: 14px; right: 14px; z-index: 100;
+    background: rgba(15,52,96,.88); color: rgba(255,255,255,.75);
+    font-size: 11px; padding: 6px 12px; border-radius: 20px;
+    pointer-events: none; transition: opacity .4s;
   }
 </style>
 </head>
@@ -212,16 +184,13 @@
 </header>
 
 <div class="main">
-
   <div class="left-panel">
     <div class="section-head">
       <h2>Frota em operação</h2>
       <span class="section-badge" id="live-count">0 / 3 ao vivo</span>
     </div>
     <div class="ship-list" id="ship-list"></div>
-    <div class="section-head">
-      <h2>Detalhe</h2>
-    </div>
+    <div class="section-head"><h2>Detalhe</h2></div>
     <div class="detail-wrap" id="detail-panel">
       <div class="dp-empty">Seleciona um navio para ver detalhes</div>
     </div>
@@ -249,10 +218,12 @@
     </div>
     <div id="log"></div>
   </div>
-
 </div>
 
+<div id="kb-hint" style="opacity:0">▲▼ Navegar · Enter Selecionar · ◄► Zoom</div>
+
 <script>
+// ── Config ────────────────────────────────────────────────────────────────
 const API_KEY      = 'd4c6145052acffa4c237f35c2d23269f1aa6f9d3';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoicmljYXJkb2F2bGlzIiwiYSI6ImNtcWZhaHMzdjE4ZzMycXI4djN0eWd1N2wifQ.fnFTDDKAR8s6DU-g1ei3Ng';
 const APDL_URL     = 'https://raspy-union-da12.ricardo-silva-43d.workers.dev';
@@ -265,66 +236,16 @@ const VESSELS = [
 ];
 const MMSI_SET = new Set(VESSELS.map(v => v.mmsi));
 
+// Coordenadas exactas (Wikipedia / APDL)
 const BARRAGENS = [
-  { name: 'Crestuma-Lever', lat: 41.07275,  lon: -8.486333, pk: 'PK 22'  },
+  { name: 'Crestuma-Lever', lat: 41.072750, lon: -8.486333, pk: 'PK 22'  },
   { name: 'Carrapatelo',    lat: 41.084889, lon: -8.130611, pk: 'PK 68'  },
-  { name: 'Régua',          lat: 41.14611,  lon: -7.74000,  pk: 'PK 101' },
-  { name: 'Valeira',        lat: 41.16043,  lon: -7.37512,  pk: 'PK 144' },
+  { name: 'Régua',          lat: 41.146110, lon: -7.740000, pk: 'PK 101' },
+  { name: 'Valeira',        lat: 41.160430, lon: -7.375120, pk: 'PK 144' },
   { name: 'Pocinho',        lat: 41.134306, lon: -7.114111, pk: 'PK 164' },
 ];
 
-// ── Geometria do navio em coordenadas reais (escala com o zoom) ──────────
-// Forma: elipse 80m × 14m — navios de rio têm proa E popa arredondadas
-const DEG2RAD = Math.PI / 180;
-const EARTH_R  = 6378137;
-
-function offsetLatLon(lat, lon, dx, dy) {
-  const dlat = (dy / EARTH_R) * (180 / Math.PI);
-  const dlon = (dx / (EARTH_R * Math.cos(lat * DEG2RAD))) * (180 / Math.PI);
-  return [lon + dlon, lat + dlat];
-}
-
-// Polígono do casco: proa semicircular (frente), popa reta (trás)
-// Eixo local: Y positivo = proa, Y negativo = popa
-// 80m comprimento total: proa ocupa ~30m (semicírculo), popa reta nos restantes 50m
-function shipPolygon(lat, lon, cogDeg) {
-  const B    = 7;    // meia-boca (14m total)
-  const Lbow = 30;   // comprimento da proa (semicírculo)
-  const Laft = 50;   // comprimento do corpo até à popa
-  const N    = 24;   // pontos no semicírculo da proa
-  const heading = (90 - (cogDeg ?? 0)) * DEG2RAD;
-
-  const pts = [];
-
-  // Semicírculo da proa: de -90° a +90° (metade superior da elipse)
-  for (let i = 0; i <= N; i++) {
-    const theta = -Math.PI/2 + (Math.PI * i) / N;
-    const lx = B * Math.cos(theta);
-    const ly = Lbow * Math.sin(theta);  // semi-eixo vertical = Lbow
-    pts.push([lx, ly]);
-  }
-
-  // Popa reta: canto direito → canto esquerdo
-  pts.push([ B, -Laft]);
-  pts.push([-B, -Laft]);
-
-  // Fechar (já temos o ponto [-B, 0] do semicírculo)
-  pts.push(pts[0]);
-
-  // Rodar pelo heading e converter para lat/lon
-  return pts.map(([lx, ly]) => {
-    const rx = lx * Math.cos(heading) - ly * Math.sin(heading);
-    const ry = lx * Math.sin(heading) + ly * Math.cos(heading);
-    return offsetLatLon(lat, lon, rx, ry);
-  });
-}
-
-// Popup minimalista — só nome e velocidade
-function buildMiniPopup(d) {
-  const sog = d.sog != null ? d.sog.toFixed(1) + ' kn' : '—';
-  return `<div class="mini-popup">${d.name || d.mmsi}<div class="mp-sub">${sog} · ${(d.cog ?? 0).toFixed(0)}°</div></div>`;
-}
-
+// ── State ─────────────────────────────────────────────────────────────────
 const state      = {};
 let selectedMMSI = null;
 let msgCount     = 0;
@@ -332,16 +253,93 @@ let ws           = null;
 let wsRetry      = 0;
 let followMode   = false;
 let mapLoaded    = false;
-const popups     = {};  // mmsi → popup permanente de label
+const popups     = {};  // mmsi → Popup label permanente
 
-// GeoJSON para os cascos — atualizado cada vez que chega posição
+// ── Clock ──────────────────────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon', hour12: false });
+  document.getElementById('clock-date').textContent =
+    now.toLocaleDateString('pt-PT', { timeZone: 'Europe/Lisbon', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function fmt(v, dec) { if (v == null || isNaN(v)) return '—'; return Number(v).toFixed(dec); }
+function relTime(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s/60) + 'min'; return Math.floor(s/3600) + 'h';
+}
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + cls;
+  const t = new Date().toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  line.textContent = `[${t}] ${msg}`;
+  el.prepend(line);
+  while (el.children.length > 100) el.removeChild(el.lastChild);
+}
+function fmtEtaAPDL(dtStr) {
+  if (!dtStr) return '—';
+  try {
+    const d = new Date(dtStr);
+    return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'2-digit' }) + ' ' +
+           d.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return dtStr; }
+}
+function formatETA(eta) {
+  if (!eta) return '—';
+  if (typeof eta === 'object') {
+    return String(eta.Day||0).padStart(2,'0') + '/' + String(eta.Month||0).padStart(2,'0') +
+           ' ' + String(eta.Hour||0).padStart(2,'0') + ':' + String(eta.Minute||0).padStart(2,'0');
+  }
+  return String(eta);
+}
+function pctColor(p) { return p >= 80 ? '#166534' : p >= 50 ? '#92400e' : '#991b1b'; }
+function pctBg(p)    { return p >= 80 ? '#22c55e' : p >= 50 ? '#f59e0b' : '#ef4444'; }
+
+// ── Geometria do navio (escala com o zoom) ────────────────────────────────
+// Proa semicircular + popa reta | 80m × 14m
+const DEG2RAD = Math.PI / 180;
+const EARTH_R  = 6378137;
+
+function offsetLatLon(lat, lon, dx, dy) {
+  return [
+    lon + (dx / (EARTH_R * Math.cos(lat * DEG2RAD))) * (180 / Math.PI),
+    lat + (dy / EARTH_R) * (180 / Math.PI)
+  ];
+}
+
+function shipPolygon(lat, lon, cogDeg) {
+  const B = 7, Lbow = 30, Laft = 50, N = 24;
+  const heading = (90 - (cogDeg ?? 0)) * DEG2RAD;
+  const pts = [];
+  // Semicírculo da proa (metade superior)
+  for (let i = 0; i <= N; i++) {
+    const theta = -Math.PI/2 + (Math.PI * i) / N;
+    pts.push([B * Math.cos(theta), Lbow * Math.sin(theta)]);
+  }
+  // Popa reta
+  pts.push([ B, -Laft]);
+  pts.push([-B, -Laft]);
+  pts.push(pts[0]); // fechar
+  // Rodar e converter
+  return pts.map(([lx, ly]) => offsetLatLon(lat, lon,
+    lx * Math.cos(heading) - ly * Math.sin(heading),
+    lx * Math.sin(heading) + ly * Math.cos(heading)
+  ));
+}
+
+// GeoJSON dos cascos
 const shipsGeoJSON = { type: 'FeatureCollection', features: [] };
 
 function shipFeature(d) {
   return {
     type: 'Feature',
     id: d.mmsi,
-    properties: { mmsi: d.mmsi, name: d.name, selected: d.mmsi === selectedMMSI ? 1 : 0 },
+    properties: { mmsi: d.mmsi, selected: d.mmsi === selectedMMSI ? 1 : 0 },
     geometry: { type: 'Polygon', coordinates: [shipPolygon(d.lat, d.lon, d.cog)] }
   };
 }
@@ -355,48 +353,7 @@ function refreshShipLayer() {
   if (src) src.setData(shipsGeoJSON);
 }
 
-// ── Clock ──
-function tickClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon', hour12: false });
-  document.getElementById('clock-date').textContent =
-    now.toLocaleDateString('pt-PT', { timeZone: 'Europe/Lisbon', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-}
-tickClock();
-setInterval(tickClock, 1000);
-
-// ── Helpers ──
-function fmt(v, dec) { if (v == null || isNaN(v)) return '—'; return Number(v).toFixed(dec); }
-function relTime(ts) {
-  const s = Math.round((Date.now() - ts) / 1000);
-  if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s/60) + 'min'; return Math.floor(s/3600) + 'h';
-}
-function log(msg, cls='') {
-  const el = document.getElementById('log'), line = document.createElement('div');
-  line.className = 'log-line ' + cls;
-  const t = new Date().toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  line.textContent = `[${t}] ${msg}`;
-  el.prepend(line);
-  while (el.children.length > 100) el.removeChild(el.lastChild);
-}
-function fmtEtaAPDL(dtStr) {
-  if (!dtStr) return '—';
-  try { const d = new Date(dtStr); return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}); }
-  catch(e) { return dtStr; }
-}
-function pctColor(p) { return p>=80?'#166534':p>=50?'#92400e':'#991b1b'; }
-function pctBg(p)    { return p>=80?'#22c55e':p>=50?'#f59e0b':'#ef4444'; }
-function formatETA(eta) {
-  if (!eta) return '—';
-  if (typeof eta==='object') {
-    return String(eta.Day||0).padStart(2,'0')+'/'+String(eta.Month||0).padStart(2,'0')+' '+
-           String(eta.Hour||0).padStart(2,'0')+':'+String(eta.Minute||0).padStart(2,'0');
-  }
-  return String(eta);
-}
-
-// ── Map ──
+// ── Map ───────────────────────────────────────────────────────────────────
 mapboxgl.accessToken = MAPBOX_TOKEN;
 const map = new mapboxgl.Map({
   container: 'map',
@@ -409,28 +366,27 @@ map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 map.on('dragstart', () => { followMode = false; });
 
-// ── Actualizar navio: GeoJSON layer (escala com zoom) + popup label ──────
+// ── Actualizar posição + label do navio ───────────────────────────────────
 function updateMarker(d) {
   if (!mapLoaded || d.lat == null || d.lon == null) return;
   const lngLat = [d.lon, d.lat];
+  const sog = d.sog != null ? fmt(d.sog, 1) + ' kn' : '—';
+  const html = `<div class="mini-popup">${d.name || d.mmsi}<div class="mp-sub">${sog} · ${fmt(d.cog, 0)}°</div></div>`;
 
-  // Actualizar/criar popup de label permanente
   if (popups[d.mmsi]) {
-    popups[d.mmsi].setLngLat(lngLat).setHTML(buildMiniPopup(d));
+    popups[d.mmsi].setLngLat(lngLat).setHTML(html);
   } else {
-    const popup = new mapboxgl.Popup({
+    popups[d.mmsi] = new mapboxgl.Popup({
       offset: [0, 0], closeButton: false, closeOnClick: false,
-      anchor: 'bottom', maxWidth: '160px'
-    }).setHTML(buildMiniPopup(d)).setLngLat(lngLat).addTo(map);
-    popups[d.mmsi] = popup;
+      anchor: 'bottom', maxWidth: '180px'
+    }).setHTML(html).setLngLat(lngLat).addTo(map);
   }
 
-  // Actualizar layer GeoJSON
   refreshShipLayer();
-
   if (d.mmsi === selectedMMSI && followMode) map.easeTo({ center: lngLat, duration: 500 });
 }
 
+// ── Barragens — marcadores simples ────────────────────────────────────────
 function addBarragemMarkers() {
   BARRAGENS.forEach(b => {
     const el = document.createElement('div');
@@ -442,110 +398,111 @@ function addBarragemMarkers() {
   });
 }
 
-// Clicar num navio no mapa
-function setupShipLayerClick() {
+// ── Clicar no casco do navio ──────────────────────────────────────────────
+function setupShipClick() {
   map.on('click', 'ships-fill', (e) => {
-    const mmsi = e.features?.[0]?.properties?.mmsi;
-    if (mmsi) selectShip(String(mmsi));
+    const mmsi = String(e.features?.[0]?.properties?.mmsi || '');
+    if (mmsi) selectShip(mmsi);
   });
   map.on('mouseenter', 'ships-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
   map.on('mouseleave', 'ships-fill', () => { map.getCanvas().style.cursor = ''; });
 }
 
+// ── map.on('load') — único ponto de init ─────────────────────────────────
 map.on('load', () => {
   mapLoaded = true;
 
-  // Source + layers para os cascos dos navios
   map.addSource('ships', { type: 'geojson', data: shipsGeoJSON });
-
-  // Fill: navy para normal, azul vivo para seleccionado
   map.addLayer({
-    id: 'ships-fill',
-    type: 'fill',
-    source: 'ships',
+    id: 'ships-fill', type: 'fill', source: 'ships',
     paint: {
       'fill-color': ['case', ['==', ['get', 'selected'], 1], '#1d6fa4', '#0f3460'],
       'fill-opacity': 0.92,
     }
   });
-
-  // Outline branco
   map.addLayer({
-    id: 'ships-outline',
-    type: 'line',
-    source: 'ships',
+    id: 'ships-outline', type: 'line', source: 'ships',
     paint: {
       'line-color': '#ffffff',
       'line-width': ['case', ['==', ['get', 'selected'], 1], 2.5, 1.5],
     }
   });
 
-  setupShipLayerClick();
+  setupShipClick();
   addBarragemMarkers();
   renderCards();
+
   fetchAPDL();
   setInterval(fetchAPDL, 30000);
   connect();
   fetchHidro();
   setInterval(fetchHidro, 300000);
   setInterval(() => { renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD(); }, 5000);
+
   log('Mapa inicializado', 'ok');
 });
 
-// ── Ship cards ──
+// ── Ship cards ────────────────────────────────────────────────────────────
 function renderCards() {
   const list = document.getElementById('ship-list');
   list.innerHTML = '';
   let liveCount = 0;
-  VESSELS.forEach(v => {
+  VESSELS.forEach((v, i) => {
     const d = state[v.mmsi] || {};
-    const live = d.ts && (Date.now()-d.ts) < 5*60*1000;
+    const live = d.ts && (Date.now() - d.ts) < 5 * 60 * 1000;
     if (live) liveCount++;
     const card = document.createElement('div');
-    card.className = 'ship-card' + (selectedMMSI===v.mmsi?' active':'');
+    card.className = 'ship-card' + (selectedMMSI === v.mmsi ? ' active' : '');
+    card.setAttribute('tabindex', '0');
     card.innerHTML = `
       <div class="sc-header">
         <div>
           <div class="sc-name">${v.flag} ${v.name}</div>
           <div class="sc-mmsi">MMSI ${v.mmsi}</div>
         </div>
-        <div class="sc-live-dot ${live?'live':(d.ts?'stale':'')}"></div>
+        <div class="sc-dot ${live ? 'live' : (d.ts ? 'stale' : '')}"></div>
       </div>
       <div class="sc-body">
-        <div class="sc-cell"><div class="sc-label">SOG</div><div class="sc-value">${d.sog!=null?fmt(d.sog,1)+' kn':'—'}</div></div>
-        <div class="sc-cell"><div class="sc-label">COG</div><div class="sc-value">${d.cog!=null?fmt(d.cog,0)+'°':'—'}</div></div>
-        <div class="sc-cell"><div class="sc-label">Calado</div><div class="sc-value">${d.draught!=null?fmt(d.draught,1)+'m':'—'}</div></div>
+        <div class="sc-cell"><div class="sc-label">SOG</div><div class="sc-value">${d.sog != null ? fmt(d.sog,1)+' kn' : '—'}</div></div>
+        <div class="sc-cell"><div class="sc-label">COG</div><div class="sc-value">${d.cog != null ? fmt(d.cog,0)+'°' : '—'}</div></div>
+        <div class="sc-cell"><div class="sc-label">Calado</div><div class="sc-value">${d.draught != null ? fmt(d.draught,1)+'m' : '—'}</div></div>
       </div>
       <div class="sc-footer">
-        <span>→ <span class="sc-dest">${d.dest||'—'}</span></span>
-        <span>${d.ts?relTime(d.ts)+' atrás':'sem dados'}</span>
+        <span>→ <span class="sc-dest">${d.dest || '—'}</span></span>
+        <span>${d.ts ? relTime(d.ts)+' atrás' : 'sem dados'}</span>
       </div>`;
     card.onclick = () => selectShip(v.mmsi);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectShip(v.mmsi); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); focusCard(i + 1); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); focusCard(i - 1); }
+    });
     list.appendChild(card);
   });
   document.getElementById('live-count').textContent = `${liveCount} / 3 ao vivo`;
 }
 
+// ── Detail ────────────────────────────────────────────────────────────────
 function renderDetail(mmsi) {
   const panel = document.getElementById('detail-panel');
   if (!mmsi) { panel.innerHTML = '<div class="dp-empty">Seleciona um navio para ver detalhes</div>'; return; }
-  const v = VESSELS.find(x=>x.mmsi===mmsi)||{};
-  const d = state[mmsi]||{};
+  const v = VESSELS.find(x => x.mmsi === mmsi) || {};
+  const d = state[mmsi] || {};
   panel.innerHTML = `
     <div class="dp-name-row">
-      <span class="dp-name">${v.flag||''} ${v.name||mmsi}</span>
-      ${d.source?`<span class="dp-source">${d.source}</span>`:''}
+      <span class="dp-name">${v.flag || ''} ${v.name || mmsi}</span>
+      ${d.source ? `<span class="dp-source">${d.source}</span>` : ''}
     </div>
     <div class="dp-grid">
-      <div class="dp-cell"><div class="dp-label">SOG</div><div class="dp-value">${d.sog!=null?fmt(d.sog,1)+' kn':'—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog!=null?fmt(d.cog,0)+'°':'—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value" style="font-size:12px">${d.lat!=null?fmt(d.lat,5):'—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value" style="font-size:12px">${d.lon!=null?fmt(d.lon,5):'—'}</div></div>
-      <div class="dp-highlight green"><div class="dp-label">Próximo porto</div><div class="dp-value">${d.dest||'—'}</div></div>
-      <div class="dp-highlight amber"><div class="dp-label">ETA estimada</div><div class="dp-value">${d.jul_eta||d.eta||'—'}</div></div>
-      ${d.jul_status?`<div class="dp-cell" style="grid-column:1/-1"><div class="dp-label">Estado operacional</div><div class="dp-value" style="font-size:12px;color:var(--navy)">${d.jul_status}</div></div>`:''}
-      <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught!=null?fmt(d.draught,1)+' m':'—'}</div></div>
-      <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:12px">${d.ts?relTime(d.ts)+' atrás':'—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">SOG</div><div class="dp-value">${d.sog != null ? fmt(d.sog,1)+' kn' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">COG</div><div class="dp-value">${d.cog != null ? fmt(d.cog,0)+'°' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Latitude</div><div class="dp-value" style="font-size:12px">${d.lat != null ? fmt(d.lat,5) : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Longitude</div><div class="dp-value" style="font-size:12px">${d.lon != null ? fmt(d.lon,5) : '—'}</div></div>
+      <div class="dp-highlight green"><div class="dp-label">Próximo porto</div><div class="dp-value">${d.dest || '—'}</div></div>
+      <div class="dp-highlight amber"><div class="dp-label">ETA estimada</div><div class="dp-value">${d.jul_eta || d.eta || '—'}</div></div>
+      ${d.jul_status ? `<div class="dp-cell" style="grid-column:1/-1"><div class="dp-label">Estado operacional</div><div class="dp-value" style="font-size:12px;color:var(--navy)">${d.jul_status}</div></div>` : ''}
+      <div class="dp-cell"><div class="dp-label">Calado</div><div class="dp-value">${d.draught != null ? fmt(d.draught,1)+' m' : '—'}</div></div>
+      <div class="dp-cell"><div class="dp-label">Última msg</div><div class="dp-value" style="font-size:12px">${d.ts ? relTime(d.ts)+' atrás' : '—'}</div></div>
     </div>
     <div class="dp-links">
       <a class="dp-link" href="https://www.vesselfinder.com/vessels/details/${mmsi}" target="_blank">VesselFinder ↗</a>
@@ -558,208 +515,206 @@ function selectShip(mmsi) {
   selectedMMSI = mmsi;
   followMode   = true;
   const d = state[mmsi];
-  if (d?.lat!=null && d?.lon!=null) map.flyTo({ center:[d.lon,d.lat], zoom:14, duration:900 });
-  refreshShipLayer();  // actualiza cores (selected)
+  if (d?.lat != null) map.flyTo({ center: [d.lon, d.lat], zoom: 14, duration: 900 });
+  refreshShipLayer();
   renderCards();
   renderDetail(mmsi);
 }
 
-// ── HUD ──
+// ── HUD ───────────────────────────────────────────────────────────────────
 function refreshHUD() {
-  const live = VESSELS.filter(v=>state[v.mmsi]?.lat!=null).length;
+  const live = VESSELS.filter(v => state[v.mmsi]?.lat != null).length;
   document.getElementById('hud-ships').textContent = live;
-  const latest = Object.values(state).filter(d=>d.ts).sort((a,b)=>b.ts-a.ts)[0];
-  document.getElementById('hud-time').textContent = latest?'Última: '+relTime(latest.ts)+' atrás':'Última posição: —';
+  const latest = Object.values(state).filter(d => d.ts).sort((a, b) => b.ts - a.ts)[0];
+  document.getElementById('hud-time').textContent =
+    latest ? 'Última: ' + relTime(latest.ts) + ' atrás' : 'Última posição: —';
 }
 
-// ── APDL ──
+// ── APDL ─────────────────────────────────────────────────────────────────
 async function fetchAPDL() {
   try {
     const r = await fetch(APDL_URL);
-    if (!r.ok) { log('APDL HTTP '+r.status,'err'); return; }
+    if (!r.ok) { log('APDL HTTP ' + r.status, 'err'); return; }
     const json = await r.json();
-    const ships = json?.data||(Array.isArray(json)?json:[]);
-    let updated=0;
+    const ships = json?.data || (Array.isArray(json) ? json : []);
+    let updated = 0;
     ships.forEach(s => {
-      const mmsi=String(s.mmsi);
+      const mmsi = String(s.mmsi);
       if (!MMSI_SET.has(mmsi)) return;
-      const v=VESSELS.find(x=>x.mmsi===mmsi);
-      if (!state[mmsi]) state[mmsi]={mmsi,name:v?.name||s.name,flag:v?.flag||'🇵🇹'};
-      const d=state[mmsi];
-      try { const geo=typeof s.geojson==='string'?JSON.parse(s.geojson):s.geojson; if (geo?.coordinates){d.lon=geo.coordinates[0];d.lat=geo.coordinates[1];} } catch(e){}
-      if (s.sog!=null)   d.sog=parseFloat(s.sog);
-      if (s.cog!=null)   d.cog=parseFloat(s.cog);
-      if (s.destination) d.dest=s.destination.trim();
-      if (s.eta_predicted) d.eta=fmtEtaAPDL(s.eta_predicted);
-      if (s.jul_eta)       d.jul_eta=fmtEtaAPDL(s.jul_eta);
-      if (s.jul_status)    d.jul_status=s.jul_status;
-      if (s.draught)       d.draught=parseFloat(s.draught);
-      d.ts=new Date(s.last_updated).getTime()||Date.now();
-      d.source='APDL';
+      const v = VESSELS.find(x => x.mmsi === mmsi);
+      if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name || s.name, flag: v?.flag || '🇵🇹' };
+      const d = state[mmsi];
+      try {
+        const geo = typeof s.geojson === 'string' ? JSON.parse(s.geojson) : s.geojson;
+        if (geo?.coordinates) { d.lon = geo.coordinates[0]; d.lat = geo.coordinates[1]; }
+      } catch(e) {}
+      if (s.sog != null)     d.sog        = parseFloat(s.sog);
+      if (s.cog != null)     d.cog        = parseFloat(s.cog);
+      if (s.destination)     d.dest       = s.destination.trim();
+      if (s.eta_predicted)   d.eta        = fmtEtaAPDL(s.eta_predicted);
+      if (s.jul_eta)         d.jul_eta    = fmtEtaAPDL(s.jul_eta);
+      if (s.jul_status)      d.jul_status = s.jul_status;
+      if (s.draught)         d.draught    = parseFloat(s.draught);
+      d.ts     = new Date(s.last_updated).getTime() || Date.now();
+      d.source = 'APDL';
       updateMarker(d);
       updated++;
     });
-    if (updated>0) {
-      log(`APDL — ${updated} navio(s) atualizados`,'ok');
-      msgCount+=updated;
-      document.getElementById('msg-count').textContent=msgCount+' msg';
+    if (updated > 0) {
+      log(`APDL — ${updated} navio(s) atualizados`, 'ok');
+      msgCount += updated;
+      document.getElementById('msg-count').textContent = msgCount + ' msg';
       renderCards(); if (selectedMMSI) renderDetail(selectedMMSI); refreshHUD();
-    } else { log('APDL — sem dados dos nossos navios','info'); }
-  } catch(e) { log('APDL erro: '+e.message,'err'); }
+    } else {
+      log('APDL — sem dados dos nossos navios', 'info');
+    }
+  } catch(e) { log('APDL erro: ' + e.message, 'err'); }
 }
 
-// ── Infohídrica ──
+// ── Infohídrica ───────────────────────────────────────────────────────────
 function renderBarragens(data) {
-  const list=document.getElementById('barr-list'), ts=document.getElementById('barr-ts');
+  const list = document.getElementById('barr-list');
+  const ts   = document.getElementById('barr-ts');
   if (!data?.barragens) return;
-  ts.textContent=new Date(data.timestamp).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
-  list.innerHTML=data.barragens.map(b=>{
-    const pct=b.percentagem||0, c=pctColor(pct), bg=pctBg(pct);
+  ts.textContent = new Date(data.timestamp).toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+  list.innerHTML = data.barragens.map(b => {
+    const pct = b.percentagem || 0;
     return `<div class="barr-card">
-      <div class="barr-head"><span class="barr-name">${b.nome}</span><span class="barr-pct" style="color:${c}">${pct}%</span></div>
-      <div class="barr-stats">
-        <div class="barr-stat">Cota <span>${b.cota!=null?b.cota.toFixed(2)+' m':'—'}</span></div>
-        <div class="barr-stat">NPA <span>${b.npa} m</span></div>
-        <div class="barr-stat">Lançado <span style="color:#991b1b">${b.lancado!=null?b.lancado+' m³/s':'—'}</span></div>
-        <div class="barr-stat">Afluente <span style="color:#1d4ed8">${b.afluente!=null?b.afluente+' m³/s':'—'}</span></div>
+      <div class="barr-head">
+        <span class="barr-name">${b.nome}</span>
+        <span class="barr-pct" style="color:${pctColor(pct)}">${pct}%</span>
       </div>
-      <div class="barr-bar"><div class="barr-fill" style="width:${pct}%;background:${bg}"></div></div>
+      <div class="barr-stats">
+        <div class="barr-stat">Cota <span>${b.cota != null ? b.cota.toFixed(2)+' m' : '—'}</span></div>
+        <div class="barr-stat">NPA <span>${b.npa} m</span></div>
+        <div class="barr-stat">Lançado <span style="color:#991b1b">${b.lancado != null ? b.lancado+' m³/s' : '—'}</span></div>
+        <div class="barr-stat">Afluente <span style="color:#1d4ed8">${b.afluente != null ? b.afluente+' m³/s' : '—'}</span></div>
+      </div>
+      <div class="barr-bar"><div class="barr-fill" style="width:${pct}%;background:${pctBg(pct)}"></div></div>
     </div>`;
   }).join('');
 }
+
 async function fetchHidro() {
   try {
-    const r=await fetch(HIDRO_URL);
-    if (!r.ok) { log('Hidro HTTP '+r.status,'err'); return; }
+    const r = await fetch(HIDRO_URL);
+    if (!r.ok) { log('Hidro HTTP ' + r.status, 'err'); return; }
     renderBarragens(await r.json());
-    log('Barragens atualizadas','info');
-  } catch(e) { log('Hidro erro: '+e.message,'err'); }
+    log('Barragens atualizadas', 'info');
+  } catch(e) { log('Hidro erro: ' + e.message, 'err'); }
 }
 
-// ── AISStream ──
-const WS_BADGE=document.getElementById('ws-badge');
+// ── AISStream WebSocket ───────────────────────────────────────────────────
+const WS_BADGE = document.getElementById('ws-badge');
+
 function connect() {
-  log('A ligar ao AISStream…','info');
-  WS_BADGE.className=''; WS_BADGE.textContent='● AIS';
-  ws=new WebSocket('wss://stream.aisstream.io/v0/stream');
-  ws.onopen=()=>{
-    wsRetry=0; WS_BADGE.className='ok'; WS_BADGE.textContent='● AIS';
-    log('AISStream ligado','ok');
+  log('A ligar ao AISStream…', 'info');
+  WS_BADGE.className = ''; WS_BADGE.textContent = '● AIS';
+  ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
+  ws.onopen = () => {
+    wsRetry = 0; WS_BADGE.className = 'ok'; WS_BADGE.textContent = '● AIS';
+    log('AISStream ligado', 'ok');
     ws.send(JSON.stringify({
-      APIKey:API_KEY, BoundingBoxes:[[[-90,-180],[90,180]]],
-      FilterMessageTypes:['PositionReport','StandardClassBPositionReport','ShipStaticData'],
-      MMSIs:VESSELS.map(v=>parseInt(v.mmsi)),
+      APIKey: API_KEY,
+      BoundingBoxes: [[[-90,-180],[90,180]]],
+      FilterMessageTypes: ['PositionReport','StandardClassBPositionReport','ShipStaticData'],
+      MMSIs: VESSELS.map(v => parseInt(v.mmsi)),
     }));
   };
-  ws.onmessage=async(evt)=>{
-    try { const text=evt.data instanceof Blob?await evt.data.text():evt.data; handleAIS(text); }
-    catch(e) { log('Msg erro: '+e.message,'err'); }
+  ws.onmessage = async (evt) => {
+    try {
+      const text = evt.data instanceof Blob ? await evt.data.text() : evt.data;
+      handleAIS(text);
+    } catch(e) { log('Msg erro: ' + e.message, 'err'); }
   };
-  ws.onerror=()=>log('AISStream erro','err');
-  ws.onclose=(e)=>{
-    WS_BADGE.className='err'; WS_BADGE.textContent='● AIS';
-    const delay=Math.min(30000,1000*2**wsRetry++);
-    log(`AIS fechado (${e.code}) — retry ${delay/1000}s`,'err');
-    setTimeout(connect,delay);
+  ws.onerror = () => log('AISStream erro', 'err');
+  ws.onclose = (e) => {
+    WS_BADGE.className = 'err'; WS_BADGE.textContent = '● AIS';
+    const delay = Math.min(30000, 1000 * 2 ** wsRetry++);
+    log(`AIS fechado (${e.code}) — retry ${delay/1000}s`, 'err');
+    setTimeout(connect, delay);
   };
 }
+
 function handleAIS(json) {
-  let msg; try { msg=JSON.parse(json); } catch(e){return;}
-  const mmsi=String(msg?.MetaData?.MMSI||msg?.Message?.PositionReport?.UserID||msg?.Message?.StandardClassBPositionReport?.UserID||msg?.Message?.ShipStaticData?.UserID||'');
+  let msg; try { msg = JSON.parse(json); } catch(e) { return; }
+  const mmsi = String(
+    msg?.MetaData?.MMSI ||
+    msg?.Message?.PositionReport?.UserID ||
+    msg?.Message?.StandardClassBPositionReport?.UserID ||
+    msg?.Message?.ShipStaticData?.UserID || ''
+  );
   if (!MMSI_SET.has(mmsi)) return;
-  const v=VESSELS.find(x=>x.mmsi===mmsi);
-  if (!state[mmsi]) state[mmsi]={mmsi,name:v?.name,flag:v?.flag};
-  const d=state[mmsi]; d.ts=Date.now();
-  const pos=msg?.Message?.PositionReport||msg?.Message?.StandardClassBPositionReport;
+  const v = VESSELS.find(x => x.mmsi === mmsi);
+  if (!state[mmsi]) state[mmsi] = { mmsi, name: v?.name, flag: v?.flag };
+  const d = state[mmsi]; d.ts = Date.now();
+
+  const pos = msg?.Message?.PositionReport || msg?.Message?.StandardClassBPositionReport;
   if (pos) {
-    const lat=pos.Latitude, lon=pos.Longitude;
-    if (lat!=null&&Math.abs(lat)<=90)  d.lat=lat;
-    if (lon!=null&&Math.abs(lon)<=180) d.lon=lon;
-    if (pos.SpeedOverGround!=null)  d.sog=pos.SpeedOverGround;
-    if (pos.CourseOverGround!=null) d.cog=pos.CourseOverGround;
-    d.source='AISStream';
+    const lat = pos.Latitude, lon = pos.Longitude;
+    if (lat != null && Math.abs(lat) <= 90)  d.lat = lat;
+    if (lon != null && Math.abs(lon) <= 180) d.lon = lon;
+    if (pos.SpeedOverGround  != null) d.sog = pos.SpeedOverGround;
+    if (pos.CourseOverGround != null) d.cog = pos.CourseOverGround;
+    d.source = 'AISStream';
     updateMarker(d);
-    log(`${v?.name||mmsi} — ${fmt(d.lat,4)}N ${fmt(d.lon,4)}E  ${fmt(d.sog,1)}kn`,'ok');
-    msgCount++; document.getElementById('msg-count').textContent=msgCount+' msg';
-    refreshHUD(); if (selectedMMSI===mmsi) renderDetail(mmsi); renderCards();
+    log(`${v?.name || mmsi} — ${fmt(d.lat,4)}N ${fmt(d.lon,4)}E  ${fmt(d.sog,1)}kn`, 'ok');
+    msgCount++; document.getElementById('msg-count').textContent = msgCount + ' msg';
+    refreshHUD(); if (selectedMMSI === mmsi) renderDetail(mmsi); renderCards();
   }
-  const stat=msg?.Message?.ShipStaticData;
+  const stat = msg?.Message?.ShipStaticData;
   if (stat) {
-    if (stat.Destination) d.dest=stat.Destination.trim();
-    if (stat.Eta)         d.eta=formatETA(stat.Eta);
-    if (stat.MaximumStaticDraught) d.draught=stat.MaximumStaticDraught;
-    log(`${v?.name||mmsi} — destino: ${d.dest||'—'}`,'info');
-    renderCards(); if (selectedMMSI===mmsi) renderDetail(mmsi);
+    if (stat.Destination) d.dest    = stat.Destination.trim();
+    if (stat.Eta)         d.eta     = formatETA(stat.Eta);
+    if (stat.MaximumStaticDraught) d.draught = stat.MaximumStaticDraught;
+    log(`${v?.name || mmsi} — destino: ${d.dest || '—'}`, 'info');
+    renderCards(); if (selectedMMSI === mmsi) renderDetail(mmsi);
   }
 }
 
 // ── Navegação por teclado / comando TV ───────────────────────────────────
-let kbFocusIdx = -1;
+let kbIdx = -1;
+const kbHint = document.getElementById('kb-hint');
+let hintTimer;
 
-function kbFocusCard(idx) {
+function focusCard(idx) {
   idx = Math.max(0, Math.min(VESSELS.length - 1, idx));
-  kbFocusIdx = idx;
+  kbIdx = idx;
   const cards = document.querySelectorAll('#ship-list .ship-card');
-  if (cards[idx]) {
-    cards[idx].focus({ preventScroll: false });
-    cards[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
-}
-
-function kbSelectCurrent() {
-  if (kbFocusIdx >= 0 && kbFocusIdx < VESSELS.length)
-    selectShip(VESSELS[kbFocusIdx].mmsi);
+  cards[idx]?.focus({ preventScroll: false });
+  cards[idx]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function fitAllShips() {
-  const pos = Object.values(state).filter(d => d.lat != null && d.lon != null);
+  const pos = Object.values(state).filter(d => d.lat != null);
   if (!pos.length) return;
-  if (pos.length === 1) { map.flyTo({ center:[pos[0].lon,pos[0].lat], zoom:13, duration:800 }); return; }
-  const lons=pos.map(d=>d.lon), lats=pos.map(d=>d.lat);
-  map.fitBounds([[Math.min(...lons)-0.02,Math.min(...lats)-0.01],[Math.max(...lons)+0.02,Math.max(...lats)+0.01]],{padding:60,duration:800});
+  if (pos.length === 1) { map.flyTo({ center:[pos[0].lon,pos[0].lat], zoom:13 }); return; }
+  const lons = pos.map(d => d.lon), lats = pos.map(d => d.lat);
+  map.fitBounds([[Math.min(...lons)-.02,Math.min(...lats)-.01],[Math.max(...lons)+.02,Math.max(...lats)+.01]],{padding:60,duration:800});
+}
+
+function showHint() {
+  kbHint.style.opacity = '1';
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => { kbHint.style.opacity = '0'; }, 6000);
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   switch(e.key) {
-    case 'ArrowUp':    e.preventDefault(); kbFocusCard(kbFocusIdx<0?0:kbFocusIdx-1); break;
-    case 'ArrowDown':  e.preventDefault(); kbFocusCard(kbFocusIdx<0?0:kbFocusIdx+1); break;
+    case 'ArrowUp':    e.preventDefault(); focusCard(kbIdx < 0 ? 0 : kbIdx - 1); break;
+    case 'ArrowDown':  e.preventDefault(); focusCard(kbIdx < 0 ? 0 : kbIdx + 1); break;
     case 'Enter':
-    case ' ':          e.preventDefault(); kbSelectCurrent(); break;
-    case 'ArrowRight': e.preventDefault(); map.zoomIn({duration:300}); break;
-    case 'ArrowLeft':  e.preventDefault(); map.zoomOut({duration:300}); break;
+    case ' ':          e.preventDefault(); if (kbIdx >= 0) selectShip(VESSELS[kbIdx].mmsi); break;
+    case 'ArrowRight': e.preventDefault(); map.zoomIn({ duration:300 }); break;
+    case 'ArrowLeft':  e.preventDefault(); map.zoomOut({ duration:300 }); break;
     case 'm': case 'M': fitAllShips(); break;
-    case '1': kbFocusCard(0); kbSelectCurrent(); break;
-    case '2': kbFocusCard(1); kbSelectCurrent(); break;
-    case '3': kbFocusCard(2); kbSelectCurrent(); break;
+    case '1': focusCard(0); selectShip(VESSELS[0].mmsi); break;
+    case '2': focusCard(1); selectShip(VESSELS[1].mmsi); break;
+    case '3': focusCard(2); selectShip(VESSELS[2].mmsi); break;
   }
   showHint();
 });
-
-// Patch renderCards para tabindex + eventos de teclado nos cards
-const _renderCards = renderCards;
-function renderCards() {
-  _renderCards();
-  document.querySelectorAll('#ship-list .ship-card').forEach((card, i) => {
-    card.setAttribute('tabindex', '0');
-    card.addEventListener('keydown', (e) => {
-      if (e.key==='Enter'||e.key===' ') { e.preventDefault(); card.click(); }
-      if (e.key==='ArrowDown') { e.preventDefault(); kbFocusCard(i+1); }
-      if (e.key==='ArrowUp')   { e.preventDefault(); kbFocusCard(i-1); }
-    });
-    card.addEventListener('focus', () => { kbFocusIdx = i; });
-  });
-}
-
-// Hint de teclado — desaparece após 6s, reaparece ao pressionar qualquer tecla
-const kbHint = document.getElementById('kb-hint');
-let hintTimer = setTimeout(() => { kbHint.style.opacity='0'; }, 6000);
-function showHint() {
-  kbHint.style.opacity='1';
-  clearTimeout(hintTimer);
-  hintTimer = setTimeout(() => { kbHint.style.opacity='0'; }, 6000);
-}
 </script>
-  <div id="kb-hint">▲▼ Navegar · Enter Selecionar · ← Zoom out · → Zoom in</div>
 </body>
 </html>
