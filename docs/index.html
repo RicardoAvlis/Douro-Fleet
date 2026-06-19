@@ -313,23 +313,59 @@ function offsetLatLon(lat, lon, dx, dy) {
 }
 
 function shipPolygon(lat, lon, cogDeg) {
-  const B = 7, Lbow = 30, Laft = 50, N = 24;
-  const heading = (90 - (cogDeg ?? 0)) * DEG2RAD;
-  const pts = [];
-  // Semicírculo da proa (metade superior)
-  for (let i = 0; i <= N; i++) {
-    const theta = -Math.PI/2 + (Math.PI * i) / N;
-    pts.push([B * Math.cos(theta), Lbow * Math.sin(theta)]);
+  // Navio de rio: 80m comprimento, 14m boca
+  // Eixo local: lx = babordo/estibordo (transversal), ly = popa→proa (longitudinal)
+  // Forma: corpo recto com proa semicircular e popa plana (ver imagem de referência)
+  //
+  //      proa (ly=+40)
+  //    (‾‾‾‾‾‾‾‾‾‾‾)    ← semicírculo: centro em ly=+10, raio B=7 (boca) e Rv=30 (alt)
+  //    |           |
+  //    |  corpo    |    ← lados paralelos: lx=±7
+  //    |           |
+  //    |___________|    ← popa plana (ly=-40)
+  //
+  const B      = 7;    // meia-boca
+  const Yprow  = 40;   // ly da ponta da proa
+  const Ycurve = 10;   // ly do centro do arco da proa
+  const Ystem  = -40;  // ly da popa
+  const N      = 20;   // pontos no arco
+
+  // Rotação náutica: COG 0=Norte, 90=Este, sentido horário
+  // east  =  lx*cos(cog) + ly*sin(cog)
+  // north = -lx*sin(cog) + ly*cos(cog)
+  const cog = (cogDeg ?? 0) * DEG2RAD;
+  const cosC = Math.cos(cog), sinC = Math.sin(cog);
+
+  function toGeo(lx, ly) {
+    return offsetLatLon(lat, lon,
+       lx * cosC + ly * sinC,   // east
+      -lx * sinC + ly * cosC    // north
+    );
   }
-  // Popa reta
-  pts.push([ B, -Laft]);
-  pts.push([-B, -Laft]);
-  pts.push(pts[0]); // fechar
-  // Rodar e converter
-  return pts.map(([lx, ly]) => offsetLatLon(lat, lon,
-    lx * Math.cos(heading) - ly * Math.sin(heading),
-    lx * Math.sin(heading) + ly * Math.cos(heading)
-  ));
+
+  const pts = [];
+
+  // 1. Popa — canto direito
+  pts.push(toGeo( B, Ystem));
+
+  // 2. Lado direito — sobe até ao início do arco
+  pts.push(toGeo( B, Ycurve));
+
+  // 3. Semicírculo da proa — estibordo → proa → bombordo
+  const Rv = Yprow - Ycurve;
+  for (let i = 0; i <= N; i++) {
+    const theta = (Math.PI * i) / N; // 0 → π (estibordo → proa → bombordo)
+    pts.push(toGeo(B * Math.cos(theta), Ycurve + Rv * Math.sin(theta)));
+  }
+
+  // 4. Lado esquerdo — desce até à popa
+  pts.push(toGeo(-B, Ycurve));
+  pts.push(toGeo(-B, Ystem));
+
+  // 5. Fechar na popa
+  pts.push(toGeo( B, Ystem));
+
+  return pts;
 }
 
 // GeoJSON dos cascos
